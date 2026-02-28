@@ -14,10 +14,10 @@ export default function AboutPage() {
         <div className="mt-10 space-y-10">
           <section className="card p-6">
             <h2 className="font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-              Why can&apos;t I pick a specific property?
+              Why can&apos;t I choose which property to invest in?
             </h2>
             <p className="mt-3 text-[var(--color-muted)]">
-              100 anonymous co-owners of one apartment can&apos;t sign leases, manage repairs, or make decisions. It breaks legally and operationally. Our structure: Tenantshield SPV owns properties as a company; you own a share of the company. This is the standard structure of a managed fund — like an ETF or REIT.
+              100 anonymous co-owners of one apartment would be an operational and legal dead end: who signs the tenancy agreement? Who decides on repairs? Tenantshield SPV owns the properties as a company; you own a share of the company. This is the standard managed fund structure — like an ETF or REIT.
             </p>
           </section>
 
@@ -26,7 +26,7 @@ export default function AboutPage() {
               How do I know the company picks good properties?
             </h2>
             <p className="mt-3 text-[var(--color-muted)]">
-              Every property is shown publicly with a full AI report: score, reasons for buy/reject, rejected alternatives, and yield projections. All transactions are on-chain with dates and amounts. See <Link href="/properties" className="text-[var(--color-primary)] hover:underline">/properties</Link> for the full history.
+              Every property is shown publicly with a full AI report on /properties: score, reasons for purchase, rejected alternatives, and yield projections. All deals are dated and transparent; on-chain data is available for verification.
             </p>
           </section>
 
@@ -35,7 +35,7 @@ export default function AboutPage() {
               Is this legal?
             </h2>
             <p className="mt-3 text-[var(--color-muted)]">
-              This is a proof of concept. In production we would use private placement to up to 50 investors (legal in HK without SFC). Scaling would be through a structure with a Type 9 license.
+              This is a proof of concept. In production we would use private placement to up to 50 investors (legal in HK without SFC licence). Scaling would be through a structure with a Type 9 licence.
             </p>
           </section>
 
@@ -50,8 +50,8 @@ export default function AboutPage() {
         </div>
 
         <div className="mt-12 text-center">
-          <Link href="/invest" className="btn-primary inline-flex rounded-full px-8 py-4 text-sm">
-            Buy Tenantshield Tokens
+          <Link href="/properties" className="btn-primary inline-flex rounded-full px-8 py-4 text-sm">
+            See the Portfolio →
           </Link>
         </div>
       </div>

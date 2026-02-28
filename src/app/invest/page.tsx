@@ -51,7 +51,7 @@ export default function InvestPage() {
           className="section-heading text-4xl font-bold text-white"
           style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
         >
-          Invest in the Portfolio
+          Invest in the Portfolio — not in one property.
         </h1>
         <p className="mt-2 text-[var(--color-muted)]">
           Buy Tenantshield tokens. Earn 90% of net rental income. Token grows with portfolio NAV.
@@ -76,6 +76,18 @@ export default function InvestPage() {
             <p className="mt-3 text-xs text-[var(--color-muted)]">
               Tenantshield never knows who you are. Tokens linked to wallet address only. No KYC. Abelian quantum-resistant cryptography. Zero-knowledge proof of ownership.
             </p>
+          </div>
+
+          <div className="card border-[var(--color-primary)]/40 p-6">
+            <p className="text-xs text-[var(--color-muted)] mb-3">No wallet needed — full simulation for demo purposes</p>
+            <button
+              type="button"
+              onClick={() => handleSimulate(10000, "quarterly")}
+              disabled={securing}
+              className="w-full rounded-full border-2 border-[var(--color-primary)] bg-transparent py-3 px-6 text-sm font-bold uppercase tracking-wide text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition disabled:opacity-50"
+            >
+              🎮 Simulate Investment — Demo Mode
+            </button>
           </div>
 
           <PrivacyBlock />

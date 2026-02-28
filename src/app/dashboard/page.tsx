@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import portfolioData from "@/data/portfolio.json";
 import type { Portfolio } from "@/types/property";
+import PortfolioAdvisorChat from "@/components/PortfolioAdvisorChat";
 
 const portfolio = portfolioData as Portfolio;
 
-// Mock investor stats (in production would come from API by wallet/session)
 const MOCK_TOKENS = 25;
 const MOCK_TOTAL_EARNED = 1840;
 const MOCK_NEXT_PAYOUT = 312;
@@ -82,22 +82,17 @@ export default function DashboardPage() {
           </div>
 
           <div className="card p-6">
-            <h2 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wide">Portfolio Advisor</h2>
-            <p className="mt-3 text-sm text-[var(--color-text)]">
-              Your {MOCK_TOKENS} tokens are performing well. Current yield: {portfolio.avg_portfolio_yield_pct}% annualized. NAV grew {portfolio.token_nav_change_pct}% since inception.
-            </p>
-            <p className="mt-2 text-sm text-[var(--color-muted)]">
-              New property planned Q2 2026 — good time to buy before NAV rises. Ask me anything about your portfolio (live AI coming with AWS Bedrock).
-            </p>
-            <div className="mt-4 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]/50 p-3">
-              <input
-                type="text"
-                placeholder="Ask advisor..."
-                className="w-full bg-transparent text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] outline-none"
-                readOnly
-              />
-              <p className="mt-2 text-xs text-[var(--color-muted)]">Connect Portfolio Advisor API for live chat.</p>
-            </div>
+            <PortfolioAdvisorChat
+              portfolioContext={{
+                tokensHeld: MOCK_TOKENS,
+                totalValueHkd: totalValue,
+                totalEarnedHkd: MOCK_TOTAL_EARNED,
+                nextPayoutHkd: MOCK_NEXT_PAYOUT,
+                navPerToken: portfolio.token_nav_hkd,
+                yieldPct: portfolio.avg_portfolio_yield_pct,
+                sharePct: sharePct,
+              }}
+            />
           </div>
         </div>
 
