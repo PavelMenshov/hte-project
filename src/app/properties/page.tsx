@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import propertiesData from "@/data/properties.json";
 import type { Property, PropertyStatus } from "@/types/property";
@@ -16,8 +16,10 @@ type Sort = "score" | "yield" | "district";
 export default function PropertiesPage() {
   const [marketData, setMarketData] = useState<RVDMarketSnapshot | null>(null);
   const [marketLoading, setMarketLoading] = useState(true);
+  const [marketProperties, setMarketProperties] = useState<Property[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("score");
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/market-snapshot")
@@ -29,14 +31,68 @@ export default function PropertiesPage() {
       .catch(() => setMarketLoading(false));
   }, []);
 
+  useEffect(() => {
+    fetch("/api/market-properties")
+      .then((r) => r.json())
+      .then((list: Property[]) => setMarketProperties(Array.isArray(list) ? list : []))
+      .catch(() => setMarketProperties([]));
+  }, []);
+
+  const combined = useMemo(() => [...PROPERTIES, ...marketProperties], [marketProperties]);
+
   const filtered = useMemo(() => {
-    let list = [...PROPERTIES];
+    let list = [...combined];
     if (filter !== "all") list = list.filter((p) => p.status === filter);
     if (sort === "score") list.sort((a, b) => b.ai_score - a.ai_score);
     else if (sort === "yield") list.sort((a, b) => b.net_yield_pct - a.net_yield_pct);
     else list.sort((a, b) => a.district.localeCompare(b.district));
     return list;
-  }, [filter, sort]);
+  }, [combined, filter, sort]);
+
+  const handleAnalyze = useCallback(async (property: Property) => {
+    if (property.status !== "from_market") return;
+    setAnalyzingId(property.id);
+    try {
+      const res = await fetch("/api/enrich-listing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          listing: {
+            id: property.id.replace(/^market-/, ""),
+            address: property.address,
+            district: property.district,
+            price_hkd: property.current_valuation_hkd ?? 0,
+            size_sqft: property.size_sqft,
+            rooms: property.rooms,
+            monthly_rent_hkd: property.monthly_rent_hkd,
+            listing_status: "for_sale",
+            url: property.listing_url,
+          },
+        }),
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      setMarketProperties((prev) =>
+        prev.map((p) =>
+          p.id === property.id
+            ? {
+                ...p,
+                name: data.translated_name ?? p.name,
+                address: data.translated_address ?? p.address,
+                ai_score: data.ai_score ?? p.ai_score,
+                ai_recommendation: data.ai_recommendation ?? p.ai_recommendation,
+                ai_buy_reasons: data.ai_buy_reasons ?? p.ai_buy_reasons,
+                ai_concerns: data.ai_concerns ?? p.ai_concerns,
+                gross_yield_pct: data.gross_yield_pct ?? p.gross_yield_pct,
+                net_yield_pct: (data.gross_yield_pct ?? p.gross_yield_pct) * 0.85,
+              }
+            : p
+        )
+      );
+    } finally {
+      setAnalyzingId(null);
+    }
+  }, []);
 
   return (
     <div className="min-h-screen text-[var(--color-text)]">
@@ -54,7 +110,7 @@ export default function PropertiesPage() {
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
           <span className="text-sm text-[var(--color-muted)]">Filter:</span>
-          {(["all", "in_portfolio", "analyzing", "rejected"] as const).map((f) => (
+          {(["all", "in_portfolio", "analyzing", "rejected", "from_market"] as const).map((f) => (
             <button
               key={f}
               type="button"
@@ -65,7 +121,7 @@ export default function PropertiesPage() {
                   : "bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-primary)] border border-[var(--color-border)]"
               }`}
             >
-              {({ all: "All", in_portfolio: "In Portfolio", analyzing: "Analyzing", rejected: "Rejected" } as const)[f]}
+              {({ all: "All", in_portfolio: "In Portfolio", analyzing: "Analyzing", rejected: "Rejected", from_market: "From market" } as const)[f]}
             </button>
           ))}
           <span className="ml-4 text-sm text-[var(--color-muted)]">Sort:</span>
@@ -83,7 +139,11 @@ export default function PropertiesPage() {
         <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
             <li key={p.id}>
-              <PropertyCard property={p} />
+              <PropertyCard
+                property={p}
+                onAnalyze={p.status === "from_market" ? handleAnalyze : undefined}
+                isAnalyzing={analyzingId === p.id}
+              />
             </li>
           ))}
         </ul>

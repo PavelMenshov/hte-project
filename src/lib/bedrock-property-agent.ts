@@ -91,6 +91,156 @@ Reference the official HK market data (RVD) in your analysis when relevant.
 `.trim();
 }
 
+export type MarketListingInput = {
+  address: string;
+  district: string;
+  price_hkd: number;
+  size_sqft: number;
+  rooms: number;
+  monthly_rent_hkd: number | null;
+  listing_status: string;
+};
+
+export type EnrichedMarketListing = {
+  translated_address: string;
+  translated_name: string;
+  ai_score: number;
+  ai_recommendation: "BUY" | "HOLD" | "REJECT";
+  ai_summary: string;
+  ai_buy_reasons: string[];
+  ai_concerns: string[];
+  gross_yield_pct: number;
+};
+
+/** Build prompt for a scraped market listing: translate + score for co-living. */
+export async function buildMarketListingPrompt(listing: MarketListingInput): Promise<string> {
+  const district = SCRAPED_DISTRICTS.includes(listing.district as HKDistrict)
+    ? (listing.district as HKDistrict)
+    : null;
+  const [districtCache, rvdSnapshot] = await Promise.all([
+    district ? getMarketDataForAgent(district).catch(() => null) : Promise.resolve(null),
+    fetchRVDMarketData(),
+  ]);
+  let marketContext = "Market data unavailable.";
+  if (districtCache) marketContext = formatMarketDataForPrompt(districtCache);
+  const rvdContext = rvdSnapshot
+    ? `RVD: ${rvdSnapshot.recentTransactions[0]?.totalSales ?? "—"} deals, trend ${rvdSnapshot.marketTrend}`
+    : "";
+
+  const rent = listing.monthly_rent_hkd ?? 0;
+  const yieldPct = listing.price_hkd > 0 && rent > 0
+    ? ((rent * 12) / listing.price_hkd) * 100
+    : 0;
+
+  return `
+You are Tenantshield's AI Property Analyst for Hong Kong. Analyze this LISTING from the market (address may be in Chinese).
+
+LISTING:
+- Address: ${listing.address}
+- District: ${listing.district}
+- Price (HKD): ${listing.price_hkd.toLocaleString()}
+- Size: ${listing.size_sqft} sqft
+- Rooms: ${listing.rooms}
+- Monthly rent (HKD): ${rent > 0 ? rent.toLocaleString() : "unknown"}
+- Listing type: ${listing.listing_status}
+- Implied gross yield: ${yieldPct.toFixed(1)}%
+
+${rvdContext}
+${marketContext}
+
+TASKS:
+1. TRANSLATE: If the address is in Chinese, provide a short English translation for display (one line). Otherwise use the address as-is.
+2. NAME: Suggest a short property name in English for this listing (e.g. "Mong Kok 3-bed near MTR").
+3. SCORE: Give AI score 0.0–10.0 for co-living investment.
+4. RECOMMENDATION: BUY, HOLD, or REJECT.
+5. SUMMARY: 2–3 sentences.
+6. REASONS: 2–3 bullet points why this recommendation.
+7. CONCERNS: 1–2 risks if any.
+
+Respond with valid JSON only, no markdown, exactly this structure:
+{"translated_address":"...","translated_name":"...","ai_score":7.5,"ai_recommendation":"BUY","ai_summary":"...","ai_buy_reasons":["..."],"ai_concerns":["..."],"gross_yield_pct":4.2}
+`.trim();
+}
+
+/** Analyze a market listing (translate + score). Returns structured enrichment or null on failure. */
+export async function analyzeMarketListing(listing: MarketListingInput): Promise<EnrichedMarketListing | null> {
+  const config = getConfig();
+  const prompt = await buildMarketListingPrompt(listing);
+
+  let text: string;
+  if (config.useAgent) {
+    try {
+      const { BedrockAgentRuntimeClient, InvokeAgentCommand } = await import("@aws-sdk/client-bedrock-agent-runtime");
+      const client = new BedrockAgentRuntimeClient({ region: config.region });
+      const response = await client.send(
+        new InvokeAgentCommand({
+          agentId: config.agentId,
+          agentAliasId: config.agentAliasId,
+          sessionId: `listing-${Date.now()}`,
+          inputText: prompt,
+        })
+      );
+      text = "";
+      if (response.completion) {
+        for await (const event of response.completion) {
+          const chunk = event as { chunk?: { bytes?: Uint8Array } };
+          if (chunk.chunk?.bytes) text += new TextDecoder("utf-8").decode(chunk.chunk.bytes);
+        }
+      }
+    } catch (e) {
+      console.error("[Bedrock Market Listing]", e);
+      return null;
+    }
+  } else {
+    try {
+      const { BedrockRuntimeClient, InvokeModelCommand } = await import("@aws-sdk/client-bedrock-runtime");
+      const client = new BedrockRuntimeClient({ region: config.region });
+      const body = JSON.stringify({
+        schemaVersion: "messages-v1",
+        messages: [{ role: "user", content: [{ text: prompt }] }],
+        inferenceConfig: { maxTokens: 512, temperature: 0.2 },
+      });
+      const response = await client.send(
+        new InvokeModelCommand({
+          modelId: config.modelId,
+          contentType: "application/json",
+          accept: "application/json",
+          body,
+        })
+      );
+      const decoded = JSON.parse(new TextDecoder().decode(response.body)) as Record<string, unknown>;
+      const output = decoded.output as Record<string, unknown> | undefined;
+      const message = output?.message as Record<string, unknown> | undefined;
+      const content = message?.content as Array<{ text?: string }> | undefined;
+      text = content?.[0]?.text ?? "";
+    } catch (e) {
+      console.error("[Bedrock Market Listing InvokeModel]", e);
+      return null;
+    }
+  }
+
+  try {
+    const jsonStr = text.replace(/```json?\s*/i, "").replace(/```\s*$/, "").trim();
+    const parsed = JSON.parse(jsonStr) as Record<string, unknown>;
+    const score = Number(parsed.ai_score);
+    const rec = String(parsed.ai_recommendation ?? "HOLD").toUpperCase();
+    return {
+      translated_address: String(parsed.translated_address ?? listing.address),
+      translated_name: String(parsed.translated_name ?? listing.address.split(",")[0] ?? "Market listing"),
+      ai_score: Number.isFinite(score) ? score : 5,
+      ai_recommendation: rec === "BUY" ? "BUY" : rec === "REJECT" ? "REJECT" : "HOLD",
+      ai_summary: String(parsed.ai_summary ?? ""),
+      ai_buy_reasons: Array.isArray(parsed.ai_buy_reasons) ? parsed.ai_buy_reasons.map(String) : [],
+      ai_concerns: Array.isArray(parsed.ai_concerns) ? parsed.ai_concerns.map(String) : [],
+      gross_yield_pct: Number(parsed.gross_yield_pct) || (listing.price_hkd > 0 && listing.monthly_rent_hkd
+        ? ((listing.monthly_rent_hkd * 12) / listing.price_hkd) * 100
+        : 0),
+    };
+  } catch {
+    return null;
+  }
+}
+
 /** Non-streaming: full analysis text. Uses market data from scraper when available. */
 export async function analyzeProperty(property: Property): Promise<string> {
   const config = getConfig();

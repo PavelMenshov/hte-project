@@ -1,4 +1,4 @@
-import { scrapeSquarefoot } from "./squarefoot";
+import { scrape28hse } from "./28hse";
 import {
   saveDistrictCache,
   loadDistrictCache,
@@ -11,8 +11,8 @@ import type { DistrictCache, HKDistrict, ScrapeResult } from "./types";
 export async function scrapeDistrict(district: HKDistrict): Promise<ScrapeResult> {
   const start = Date.now();
   try {
-    console.log(`🔍 Scraping ${district}...`);
-    const listings = await scrapeSquarefoot(district, 25);
+    console.log(`🔍 Scraping ${district} (28hse)...`);
+    const listings = await scrape28hse(district, 25);
 
     if (listings.length === 0) {
       const old = await loadDistrictCache(district);
