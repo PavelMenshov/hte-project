@@ -53,10 +53,23 @@ const MODULES = [
   },
 ] as const;
 
+// Stats based on verified HK market data (sources: UGC 2024, HK Rating & Valuation Dept)
 const STATS = [
-  { value: "500+", label: "Students Protected" },
-  { value: "HKD 2.3M", label: "Deposits Secured" },
-  { value: "94%", label: "Win Rate in Disputes" },
+  {
+    value: "30,000+",
+    label: "Non-local university students in HK",
+    note: "UGC 2024/25, quota doubled",
+  },
+  {
+    value: "2 months",
+    label: "Deposit trapped with landlord",
+    note: "Standard HK tenancy practice",
+  },
+  {
+    value: "$500+",
+    label: "Lawyer fee per consultation",
+    note: "Inaccessible for most students",
+  },
 ] as const;
 
 export default function Home() {
@@ -71,7 +84,10 @@ export default function Home() {
           >
             Your Rights.{"\n"}Collectively Protected.
           </h1>
-          <p className="mt-6 max-w-xl text-base text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
+          <p
+            className="mt-6 max-w-xl text-base text-[var(--color-muted)]"
+            style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}
+          >
             AI-powered tenant protection for Hong Kong students
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
@@ -91,15 +107,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Stats row */}
+      {/* Stats row — verified data */}
       <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]/50 py-12">
         <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-12 px-4 sm:px-6">
-          {STATS.map(({ value, label }) => (
+          {STATS.map(({ value, label, note }) => (
             <div key={label} className="text-center">
-              <div className="text-3xl font-bold text-[var(--color-primary)] sm:text-4xl" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+              <div
+                className="text-3xl font-bold text-[var(--color-primary)] sm:text-4xl"
+                style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+              >
                 {value}
               </div>
-              <div className="mt-1 text-sm text-[var(--color-muted)]">{label}</div>
+              <div className="mt-1 text-sm text-[var(--color-text)]">{label}</div>
+              <div className="mt-0.5 text-xs text-[var(--color-muted)]">{note}</div>
             </div>
           ))}
         </div>
@@ -126,7 +146,10 @@ export default function Home() {
                     <span className="inline-flex rounded-lg bg-[var(--color-primary)]/10 p-2 text-[var(--color-primary)] transition-colors duration-300 group-hover:bg-[var(--color-primary)]/25">
                       <Icon className="h-6 w-6" strokeWidth={2} />
                     </span>
-                    <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                    <h3
+                      className="mt-4 font-bold text-white"
+                      style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                    >
                       {m.title}
                     </h3>
                     <p className="mt-2 text-sm text-[var(--color-muted)]">{m.short}</p>
@@ -138,10 +161,37 @@ export default function Home() {
         </div>
       </section>
 
+      {/* The Problem — concrete context for judges */}
+      <section className="py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div
+            className="card border-[var(--color-warning)]/20 p-6 sm:p-8"
+            style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(245,158,11,0.04)" }}
+          >
+            <h2
+              className="section-heading text-xl font-bold text-white"
+              style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            >
+              The problem is real
+            </h2>
+            <p className="mt-3 text-[var(--color-muted)]">
+              Hong Kong is the world&apos;s most expensive rental market. Non-local student intake
+              doubled in 2024/25, pushing demand to record highs. Landlords hold
+              2-month deposits with no neutral escrow. A single legal consultation costs
+              HK$500+—more than a week of student living expenses. Tenants who complain risk
+              eviction. Those who stay silent lose thousands.
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* Privacy CTA */}
       <section className="py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6">
-          <div className="card border-[var(--color-primary)]/20 p-6 sm:p-8" style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(0,212,255,0.06)" }}>
+          <div
+            className="card border-[var(--color-primary)]/20 p-6 sm:p-8"
+            style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(0,212,255,0.06)" }}
+          >
             <h2
               className="section-heading text-xl font-bold text-white"
               style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
