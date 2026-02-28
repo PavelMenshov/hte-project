@@ -1,0 +1,17 @@
+{
+  "total_aum_hkd": 26000000,
+  "properties_count": 4,
+  "active_properties": 2,
+  "analyzing_properties": 1,
+  "rejected_properties": 1,
+  "total_tokens_outstanding": 26000,
+  "token_nav_hkd": 1073,
+  "token_nav_change_pct": 7.3,
+  "avg_portfolio_yield_pct": 8.3,
+  "avg_ai_score": 8.1,
+  "total_investors": 47,
+  "quarterly_revenue_hkd": 225000,
+  "investor_quarterly_payout_hkd": 202500,
+  "last_nav_update": "2026-02-01",
+  "inception_date": "2025-06-01"
+}
