@@ -24,6 +24,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  themeColor: "#0a0e1a",
 };
 
 const NAV_LINKS = [
@@ -42,6 +43,12 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className={`${syne.variable} ${ibmPlexMono.variable} antialiased`}>
+        <a
+          href="#main-content"
+          className="sr-only left-4 top-4 z-[100] rounded bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-bg)] focus:not-sr-only focus:fixed focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-primary)]"
+        >
+          Skip to main content
+        </a>
         <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-md">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
             <Link
@@ -51,7 +58,7 @@ export default function RootLayout({
             >
               TENANT//SHIELD
             </Link>
-            <nav className="flex items-center gap-6">
+            <nav className="flex items-center gap-6" aria-label="Main navigation">
               {NAV_LINKS.map(({ href, label }) => (
                 <Link
                   key={href}
@@ -64,7 +71,9 @@ export default function RootLayout({
             </nav>
           </div>
         </header>
-        {children}
+        <div id="main-content" tabIndex={-1}>
+          {children}
+        </div>
       </body>
     </html>
   );
