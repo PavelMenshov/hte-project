@@ -4,22 +4,23 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
+import { getStoredTokenBalance } from "@/lib/user-tokens";
 import portfolioData from "@/data/portfolio.json";
 import type { Portfolio } from "@/types/property";
 import PortfolioAdvisorChat from "@/components/PortfolioAdvisorChat";
 
 const portfolio = portfolioData as Portfolio;
 
-const MOCK_TOKENS = 25;
-const MOCK_TOTAL_EARNED = 1840;
-const MOCK_NEXT_PAYOUT = 312;
+const MOCK_TOTAL_EARNED_BASE = 1840;
+const MOCK_NEXT_PAYOUT_BASE = 312;
 
 export default function DashboardPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [tokensHeld, setTokensHeld] = useState(25);
 
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   useEffect(() => {
@@ -28,10 +29,19 @@ export default function DashboardPage() {
     }
   }, [mounted, router]);
 
+  useEffect(() => {
+    if (mounted) {
+      const user = getSession();
+      setTokensHeld(getStoredTokenBalance(user?.email));
+    }
+  }, [mounted]);
+
   if (!mounted) return null;
 
-  const totalValue = MOCK_TOKENS * portfolio.token_nav_hkd;
-  const sharePct = (MOCK_TOKENS / portfolio.total_tokens_outstanding) * 100;
+  const totalValue = tokensHeld * portfolio.token_nav_hkd;
+  const sharePct = (tokensHeld / portfolio.total_tokens_outstanding) * 100;
+  const totalEarned = Math.round(MOCK_TOTAL_EARNED_BASE * (tokensHeld / 25));
+  const nextPayout = Math.round(MOCK_NEXT_PAYOUT_BASE * (tokensHeld / 25));
 
   return (
     <div className="min-h-screen text-[var(--color-text)]">
@@ -49,7 +59,7 @@ export default function DashboardPage() {
             <dl className="mt-4 grid gap-4 sm:grid-cols-2" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Tokens held</dt>
-                <dd className="text-2xl font-bold text-[var(--color-primary)]">{MOCK_TOKENS}</dd>
+                <dd className="text-2xl font-bold text-[var(--color-primary)]">{tokensHeld}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Token price</dt>
@@ -61,11 +71,11 @@ export default function DashboardPage() {
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Total earned</dt>
-                <dd className="text-2xl text-[var(--color-success)]">HKD {MOCK_TOTAL_EARNED.toLocaleString()}</dd>
+                <dd className="text-2xl text-[var(--color-success)]">HKD {totalEarned.toLocaleString()}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Next payout</dt>
-                <dd className="text-xl">HKD {MOCK_NEXT_PAYOUT} <span className="text-xs text-[var(--color-muted)]">(in 23 days)</span></dd>
+                <dd className="text-xl">HKD {nextPayout} <span className="text-xs text-[var(--color-muted)]">(in 23 days)</span></dd>
               </div>
             </dl>
             <p className="mt-4 text-sm text-[var(--color-muted)]">
@@ -84,10 +94,10 @@ export default function DashboardPage() {
           <div className="card p-6">
             <PortfolioAdvisorChat
               portfolioContext={{
-                tokensHeld: MOCK_TOKENS,
+                tokensHeld,
                 totalValueHkd: totalValue,
-                totalEarnedHkd: MOCK_TOTAL_EARNED,
-                nextPayoutHkd: MOCK_NEXT_PAYOUT,
+                totalEarnedHkd: totalEarned,
+                nextPayoutHkd: nextPayout,
                 navPerToken: portfolio.token_nav_hkd,
                 yieldPct: portfolio.avg_portfolio_yield_pct,
                 sharePct: sharePct,

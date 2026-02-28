@@ -9,9 +9,13 @@ function recommendationColor(rec: AIRecommendation): string {
   return "var(--color-danger)";
 }
 
-type Props = { readonly property: Property };
+type Props = {
+  readonly property: Property;
+  readonly onAnalyze?: (property: Property) => void | Promise<void>;
+  readonly isAnalyzing?: boolean;
+};
 
-export default function PropertyCard({ property }: Props) {
+export default function PropertyCard({ property, onAnalyze, isAnalyzing }: Props) {
   const {
     id,
     name,
@@ -36,29 +40,16 @@ export default function PropertyCard({ property }: Props) {
       href={`/properties/${id}`}
       className="card group block overflow-hidden transition-all duration-300 hover:border-[var(--color-primary)] hover:shadow-[0_0_0_1px_var(--color-primary),0_0_24px_rgba(0,212,255,0.12)]"
     >
-      <div className="relative aspect-[16/10] bg-[var(--color-border)]">
-        {property.images?.[0] ? (
-          <img
-            src={property.images[0]}
-            alt=""
-            className="h-full w-full object-cover transition group-hover:scale-[1.02]"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-sm text-[var(--color-muted)]">
-            No image
-          </div>
-        )}
-        <div className="absolute right-3 top-3">
+      <div className="p-5">
+        <div className="flex items-start justify-between gap-2">
+          <h3
+            className="font-bold text-white line-clamp-1 flex-1"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            {name}
+          </h3>
           <StatusBadge status={status} />
         </div>
-      </div>
-      <div className="p-5">
-        <h3
-          className="font-bold text-white line-clamp-1"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-        >
-          {name}
-        </h3>
         <p className="mt-1 text-sm text-[var(--color-muted)]">
           📍 {district}, {address.split(",")[0]}
         </p>
@@ -88,6 +79,20 @@ export default function PropertyCard({ property }: Props) {
             Acquired {acquired_date} · {formatHKD(acquired_price_hkd)} → {formatHKD(current_valuation_hkd)} (
             {(((current_valuation_hkd - acquired_price_hkd) / acquired_price_hkd) * 100).toFixed(1)}%)
           </p>
+        )}
+        {onAnalyze && (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onAnalyze(property);
+            }}
+            disabled={isAnalyzing}
+            className="mt-3 w-full rounded-lg border border-[var(--color-primary)] bg-transparent px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-primary)]/10 disabled:opacity-50"
+          >
+            {isAnalyzing ? "Analyzing…" : "Run AI analysis"}
+          </button>
         )}
         <p className="mt-3 text-sm font-medium text-[var(--color-primary)] group-hover:underline">
           Full AI Report ↓

@@ -18,8 +18,10 @@ export default function PropertyAICard({ property }: Props) {
   const [override, setOverride] = useState<Partial<ParsedAnalysis> | null>(() => getStoredOverride(property.id));
 
   useEffect(() => {
-    const stored = getStoredOverride(property.id);
-    if (stored) setOverride(stored);
+    queueMicrotask(() => {
+      const stored = getStoredOverride(property.id);
+      if (stored) setOverride(stored);
+    });
   }, [property.id]);
 
   const score = override?.ai_score ?? property.ai_score;

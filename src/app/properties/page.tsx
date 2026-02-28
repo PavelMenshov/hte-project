@@ -161,6 +161,24 @@ export default function PropertiesPage() {
             Buy Tenantshield Tokens →
           </Link>
         </div>
+
+        <div className="mx-auto max-w-2xl border-t border-[var(--color-border)] px-4 py-12 text-center sm:px-6">
+          <h2
+            className="text-xl font-bold text-white sm:text-2xl"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Not finding what you need? Join the waitlist.
+          </h2>
+          <p className="mt-2 text-sm text-[var(--color-muted)]">
+            Tell us your preferences — we&apos;ll notify you when a matching room opens up in our portfolio.
+          </p>
+          <Link
+            href="/register"
+            className="btn-primary mt-6 inline-flex rounded-full px-6 py-3 text-sm"
+          >
+            Join waitlist
+          </Link>
+        </div>
       </div>
     </div>
   );

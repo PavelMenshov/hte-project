@@ -15,7 +15,7 @@ export default async function PropertyPage({ params }: Props) {
   const { id } = await params;
   let property = PROPERTIES.find((p) => p.id === id);
   if (!property && id.startsWith("market-")) {
-    property = await getMarketProperty(id) ?? null;
+    property = (await getMarketProperty(id)) ?? undefined;
   }
   if (!property) notFound();
 
@@ -33,15 +33,8 @@ export default async function PropertyPage({ params }: Props) {
         </Link>
 
         <div className="mt-6 grid gap-8 lg:grid-cols-5">
-          {/* Left: photo + facts */}
+          {/* Left: facts */}
           <div className="lg:col-span-2 space-y-6">
-            <div className="aspect-[4/3] overflow-hidden rounded-xl bg-[var(--color-border)]">
-              {property.images?.[0] ? (
-                <img src={property.images[0]} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <div className="flex h-full items-center justify-center text-[var(--color-muted)]">No image</div>
-              )}
-            </div>
             <div className="card p-5">
               <h2
                 className="font-bold text-white"
@@ -100,7 +93,7 @@ export default async function PropertyPage({ params }: Props) {
             {property.status === "from_market" && property.listing_url && (
               <div className="space-y-2">
                 <p className="text-sm text-[var(--color-muted)]">
-                  Full description, photos and contact are on the listing site.
+                  Full description and contact are on the listing site.
                 </p>
                 <a
                   href={property.listing_url}
