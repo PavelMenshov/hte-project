@@ -12,6 +12,7 @@ import {
   User,
   Lock,
   Cpu,
+  ChevronDown,
 } from "lucide-react";
 
 const TOTAL_SLIDES = 8;
@@ -24,6 +25,39 @@ const MODULES = [
   { icon: Star, name: "Anonymous Reviews", desc: "Rate landlords without fear", badge: "Abelian" },
   { icon: HomeIcon, name: "Sublease Coordinator", desc: "Never pay for an empty room again", badge: "AWS" },
 ] as const;
+
+const MODULE_DETAILS: Record<string, { whatItIs: string; howItWorks: string; tech: string }> = {
+  "Contract Analyzer": {
+    whatItIs: "AI agent that reads your tenancy agreement and flags illegal clauses, unfair terms, and overpriced rent compared to the HK market.",
+    howItWorks: "Paste or upload your contract → AWS Bedrock Agent analyzes against HK Landlord & Tenant Ordinance → returns structured report with red flags and recommendations in 30 seconds.",
+    tech: "AWS Bedrock AgentCore · Amazon Nova Lite · HK Tenancy Law reference database · No PII sent to cloud",
+  },
+  "Deposit Escrow": {
+    whatItIs: "Neutral on-chain escrow that holds your deposit instead of giving it directly to the landlord.",
+    howItWorks: "Student deposits funds into QDay smart contract → landlord receives cryptographic guarantee → upon move-out, contract compares property state and auto-releases deposit. Disputes go to Legal Fund.",
+    tech: "Abelian / QDay EVM · Escrow.sol smart contract · viem for wallet interaction · MetaMask / QDay network",
+  },
+  "Collective Rent Pool": {
+    whatItIs: "Anonymous pool that aggregates student demand and sends bulk rental offers to landlords — giving renters the negotiating power they lack individually.",
+    howItWorks: "Students anonymously submit district + budget → AWS Bedrock Agent aggregates demand → sends collective offer to landlords → students receive 15–25% group discount. Landlord never knows who the individuals are.",
+    tech: "AWS Bedrock AgentCore · CollectiveRentPool.sol · Abelian for anonymization · keccak256 district hashing",
+  },
+  "Legal Fund": {
+    whatItIs: "Collective insurance fund: everyone pays HK$5/month, anyone with a landlord dispute gets a matched lawyer — fully funded by the pool.",
+    howItWorks: "Monthly contributions accumulate in LegalFund.sol → student describes dispute → Bedrock Agent classifies type and urgency → matched to partner lawyer → lawyer paid from fund. Student pays nothing extra.",
+    tech: "AWS Bedrock AgentCore · LegalFund.sol · Abelian for anonymous contributions · QDay testnet",
+  },
+  "Anonymous Reviews": {
+    whatItIs: "Verified landlord review system where authorship is cryptographically anonymized — so tenants can be honest without fear of eviction or retaliation.",
+    howItWorks: "After tenancy ends, student submits review → Abelian links it to Deposit Pool record (proving they rented) → author identity is stripped → aggregated rating published. Landlord sees score, not names.",
+    tech: "Abelian / QDay · Zero-knowledge proof of tenancy · On-chain review registry · Aggregated rating index",
+  },
+  "Sublease Coordinator": {
+    whatItIs: "AI matching system for summer sublease: list your room, AI finds a verified subtenant, smart contract handles all payments automatically.",
+    howItWorks: "Student lists room with dates + price → AWS Bedrock Agent matches with students looking for short-term housing → QDay contract splits rent: landlord gets full amount, original tenant gets refund. No cash, no trust required.",
+    tech: "AWS Bedrock AgentCore · QDay payment split contract · Abelian anonymization · Automated rent distribution",
+  },
+};
 
 const QUOTES = [
   "Signed contract without understanding it",
@@ -45,12 +79,16 @@ const AWARDS = [
   { initials: "MA", prize: "HKD 20,000", name: "Champion", bullets: ["Novel AI + blockchain combination", "Real-world impact, working demo"], tag: "TARGETING" as const },
 ] as const;
 
+const row1 = MODULES.slice(0, 3);
+const row2 = MODULES.slice(3, 6);
+
 export default function PitchPage() {
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
   const barsRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
   const [barsVisible, setBarsVisible] = useState(false);
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   useEffect(() => {
     function onScroll() {
@@ -198,24 +236,110 @@ export default function PitchPage() {
           <br />
           Six shields.
         </h2>
-        <div className="mt-12 grid w-full max-w-5xl gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {MODULES.map((m) => {
+        <ul className="mt-12 grid w-full max-w-5xl list-none gap-6 p-0 sm:grid-cols-2 lg:grid-cols-3">
+          {row1.map((m) => {
             const Icon = m.icon;
             return (
-              <div
-                key={m.name}
-                className="card flex flex-col items-center rounded-xl p-6 text-center transition duration-200 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-[0_0_24px_rgba(0,212,255,0.2)]"
-              >
-                <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
-                  <Icon className="h-6 w-6" />
-                </span>
-                <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>{m.name}</h3>
-                <p className="mt-2 text-sm text-[var(--color-muted)]">{m.desc}</p>
-                <span className="mt-3 rounded bg-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-muted)]">{m.badge}</span>
-              </div>
+              <li key={m.name} className="contents">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setExpandedModule(expandedModule === m.name ? null : m.name)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpandedModule(expandedModule === m.name ? null : m.name); } }}
+                  className="card flex cursor-pointer flex-col items-center rounded-xl p-6 text-center transition duration-200 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-[0_0_24px_rgba(0,212,255,0.2)]"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
+                    <Icon className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>{m.name}</h3>
+                  <p className="mt-2 text-sm text-[var(--color-muted)]">{m.desc}</p>
+                  <div className="mt-3 flex w-full items-center justify-between">
+                    <span className="rounded bg-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-muted)]">{m.badge}</span>
+                    <ChevronDown className={`h-4 w-4 text-[var(--color-muted)] transition-transform duration-300 ${expandedModule === m.name ? "rotate-180" : ""}`} />
+                  </div>
+                </div>
+              </li>
             );
           })}
-        </div>
+          {expandedModule && row1.some((m) => m.name === expandedModule) && (() => {
+            const d = MODULE_DETAILS[expandedModule];
+            if (!d) return null;
+            return (
+              <li key={`detail-${expandedModule}`} className="col-span-full mt-[-16px] mb-2">
+                <div
+                  className="rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-surface)] p-6"
+                  style={{ animation: "fadeInDown 0.25s ease forwards" }}
+                >
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>WHAT IT IS</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.whatItIs}</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>HOW IT WORKS</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.howItWorks}</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>TECH</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.tech}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })()}
+          {row2.map((m) => {
+            const Icon = m.icon;
+            return (
+              <li key={m.name} className="contents">
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setExpandedModule(expandedModule === m.name ? null : m.name)}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpandedModule(expandedModule === m.name ? null : m.name); } }}
+                  className="card flex cursor-pointer flex-col items-center rounded-xl p-6 text-center transition duration-200 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-[0_0_24px_rgba(0,212,255,0.2)]"
+                >
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-primary)]/20 text-[var(--color-primary)]">
+                    <Icon className="h-6 w-6" />
+                  </span>
+                  <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>{m.name}</h3>
+                  <p className="mt-2 text-sm text-[var(--color-muted)]">{m.desc}</p>
+                  <div className="mt-3 flex w-full items-center justify-between">
+                    <span className="rounded bg-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-muted)]">{m.badge}</span>
+                    <ChevronDown className={`h-4 w-4 text-[var(--color-muted)] transition-transform duration-300 ${expandedModule === m.name ? "rotate-180" : ""}`} />
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+          {expandedModule && row2.some((m) => m.name === expandedModule) && (() => {
+            const d = MODULE_DETAILS[expandedModule];
+            if (!d) return null;
+            return (
+              <li key={`detail-${expandedModule}`} className="col-span-full mt-[-16px] mb-2">
+                <div
+                  className="rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-surface)] p-6"
+                  style={{ animation: "fadeInDown 0.25s ease forwards" }}
+                >
+                  <div className="grid gap-6 md:grid-cols-3">
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>WHAT IT IS</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.whatItIs}</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>HOW IT WORKS</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.howItWorks}</p>
+                    </div>
+                    <div>
+                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>TECH</p>
+                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.tech}</p>
+                    </div>
+                  </div>
+                </div>
+              </li>
+            );
+          })()}
+        </ul>
       </section>
 
       {/* Slide 4 — Live Demo */}
