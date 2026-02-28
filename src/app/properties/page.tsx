@@ -49,7 +49,7 @@ export default function PropertiesPage() {
           Our AI-Curated Portfolio
         </h1>
         <p className="mt-2 text-[var(--color-muted)]">
-          See why we chose each property. These are owned by Tenantshield SPV — you invest in the full portfolio.
+          See why we chose each property
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -88,18 +88,16 @@ export default function PropertiesPage() {
           ))}
         </ul>
 
-        <div className="card mt-12 border-[var(--color-border)]/80 p-6 text-center">
-          <p className="text-sm text-[var(--color-muted)]">
-            These properties are owned by Tenantshield SPV — not by individual investors. Buying tokens means
-            investing in the full portfolio.{" "}
+        <div className="mt-12 w-full border-t border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4 sm:px-6">
+          <p className="mx-auto max-w-6xl text-center text-sm text-[var(--color-muted)]">
+            These properties are owned by Tenantshield SPV — not by individual investors. Buying tokens means investing in the full portfolio.{" "}
             <Link href="/about" className="text-[var(--color-primary)] hover:underline">
               Why this model? →
             </Link>
           </p>
-          <Link
-            href="/invest"
-            className="btn-primary mt-4 inline-flex rounded-full px-6 py-3 text-sm"
-          >
+        </div>
+        <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 text-center sm:px-6">
+          <Link href="/invest" className="btn-primary inline-flex rounded-full px-6 py-3 text-sm">
             Buy Tenantshield Tokens →
           </Link>
         </div>
