@@ -345,8 +345,8 @@ export default function PitchPage() {
         <h2 className="text-center text-3xl font-bold text-white md:text-4xl" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
           Privacy by design.
         </h2>
-        <div className="mt-12 flex w-full max-w-5xl flex-col items-stretch gap-8 lg:flex-row lg:items-stretch lg:gap-4">
-          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl p-6 text-center">
+        <div className="mt-12 flex w-full max-w-5xl flex-col items-stretch gap-8 lg:flex-row lg:items-center lg:gap-4">
+          <div className="card flex min-h-[220px] min-w-0 flex-1 flex-col rounded-xl p-6 text-center">
             <User className="mx-auto h-10 w-10 text-[var(--color-muted)]" />
             <h3 className="mt-3 font-bold text-white">Student</h3>
             <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
@@ -355,7 +355,16 @@ export default function PitchPage() {
               <li>Pays $5 to fund</li>
             </ul>
           </div>
-          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 p-6 text-center">
+          <div className="flex shrink-0 flex-col items-center justify-center gap-1 lg:w-20">
+            <p className="text-center text-xs text-[var(--color-muted)]">encrypted</p>
+            <div className="flex items-center gap-0 lg:gap-0">
+              <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-8" />
+              <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+          </div>
+          <div className="card flex min-h-[220px] min-w-0 flex-1 flex-col rounded-xl border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 p-6 text-center">
             <Lock className="mx-auto h-10 w-10 text-[var(--color-secondary)]" />
             <h3 className="mt-3 font-bold text-white">Abelian Layer</h3>
             <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
@@ -364,14 +373,16 @@ export default function PitchPage() {
               <li>Verifies without revealing</li>
             </ul>
           </div>
-          <div className="relative flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-1 lg:min-w-0">
-            <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-12 lg:flex-1" />
-            <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded bg-[var(--color-bg)] px-1.5 text-xs text-[var(--color-muted)] lg:px-2">anonymized data only</span>
+          <div className="flex shrink-0 flex-col items-center justify-center gap-1 lg:w-20">
+            <p className="max-w-[5rem] text-center text-xs leading-tight text-[var(--color-muted)]">anonymized data only</p>
+            <div className="flex items-center gap-0 lg:gap-0">
+              <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-8" />
+              <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
           </div>
-          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-6 text-center">
+          <div className="card flex min-h-[220px] min-w-0 flex-1 flex-col rounded-xl border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-6 text-center">
             <Cpu className="mx-auto h-10 w-10 text-[var(--color-primary)]" />
             <h3 className="mt-3 font-bold text-white">AWS Bedrock Agent</h3>
             <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
