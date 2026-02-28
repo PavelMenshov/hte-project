@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Syne, IBM_Plex_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const syne = Syne({
+  variable: "--font-syne",
   subsets: ["latin"],
+  weight: ["400", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ibmPlexMono = IBM_Plex_Mono({
+  variable: "--font-ibm-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -23,6 +26,14 @@ export const viewport = {
   maximumScale: 5,
 };
 
+const NAV_LINKS = [
+  { href: "/contract", label: "Contract" },
+  { href: "/deposit", label: "Deposit" },
+  { href: "/collective", label: "Collective" },
+  { href: "/legal", label: "Legal Fund" },
+  { href: "/pitch", label: "Pitch" },
+] as const;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,9 +41,29 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${syne.variable} ${ibmPlexMono.variable} antialiased`}>
+        <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-md">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+            <Link
+              href="/"
+              className="font-bold tracking-tight text-[var(--color-primary)]"
+              style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            >
+              TENANT//SHIELD
+            </Link>
+            <nav className="flex items-center gap-6">
+              {NAV_LINKS.map(({ href, label }) => (
+                <Link
+                  key={href}
+                  href={href}
+                  className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-primary)]"
+                >
+                  {label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
         {children}
       </body>
     </html>

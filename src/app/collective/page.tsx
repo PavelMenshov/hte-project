@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 
 const DISTRICTS = ["Sai Kung", "Tuen Mun", "Sha Tin", "Tai Po", "Clear Water Bay"] as const;
 const MOVE_IN_MONTHS = (() => {
@@ -49,32 +48,23 @@ export default function CollectivePage() {
   const savingsPerYear = savingsPerMonth * 12;
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="font-bold text-[#2563eb] hover:underline">
-            ← TenantShield
-          </Link>
-          <Link href="/pitch" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
-            Pitch
-          </Link>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
       <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-        <h1 className="text-3xl font-bold text-slate-900">Collective Rent Pool</h1>
-        <p className="mt-2 text-slate-600">
+        <h1 className="section-heading text-3xl font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+          Collective Rent Pool
+        </h1>
+        <p className="mt-2 text-[var(--color-muted)]">
           Join anonymously. We aggregate demand and send one offer to landlords—you get a group discount.
         </p>
 
         {!submitted ? (
-          <form onSubmit={handleSubmit} className="mt-8 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="card mt-8 space-y-6 p-6">
             <div>
-              <label className="block text-sm font-medium text-slate-700">District</label>
+              <label className="block text-sm font-medium text-[var(--color-text)]">District</label>
               <select
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20"
+                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               >
                 {DISTRICTS.map((d) => (
                   <option key={d} value={d}>{d}</option>
@@ -82,61 +72,58 @@ export default function CollectivePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Budget (HKD / month)</label>
+              <label className="block text-sm font-medium text-[var(--color-text)]">Budget (HKD / month)</label>
               <input
                 type="number"
                 min={1}
                 value={budget}
                 onChange={(e) => setBudget(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20"
+                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700">Move-in month</label>
+              <label className="block text-sm font-medium text-[var(--color-text)]">Move-in month</label>
               <select
                 value={moveIn}
                 onChange={(e) => setMoveIn(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-800 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20"
+                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               >
                 {MOVE_IN_MONTHS.map((m) => (
                   <option key={m} value={m}>{m}</option>
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              className="w-full rounded-full bg-[#2563eb] py-3 font-semibold text-white hover:bg-[#1d4ed8]"
-            >
+            <button type="submit" className="btn-primary w-full rounded-full py-3 text-sm">
               Join the pool
             </button>
           </form>
         ) : (
           <div className="mt-8 space-y-6">
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <p className="text-lg font-medium text-slate-800">
-                You joined the pool. Currently <span className="font-bold text-[#2563eb]">{count}</span> students in {district} with average budget $<span className="font-bold text-[#2563eb]">{avgBudget.toLocaleString()}</span> HKD.
+            <div className="card p-6">
+              <p className="text-lg font-medium text-[var(--color-text)]">
+                You joined the pool. Currently <span className="font-bold text-[var(--color-primary)]">{count}</span> students in {district} with average budget $<span className="font-bold text-[var(--color-primary)]">{avgBudget.toLocaleString()}</span> HKD.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-[#2563eb]/20 bg-[#2563eb]/5 p-6">
-              <h2 className="font-bold text-slate-900">Collective offer sent to 4 landlords in {district}</h2>
-              <ul className="mt-4 space-y-2 text-slate-700">
+            <div className="card border-[var(--color-primary)]/20 p-6" style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(0,212,255,0.06)" }}>
+              <h2 className="font-bold text-white">Collective offer sent to 4 landlords in {district}</h2>
+              <ul className="mt-4 space-y-2 text-[var(--color-muted)]">
                 <li className="flex items-center gap-2">✅ Pool formed (just now)</li>
                 <li className="flex items-center gap-2">⏳ Landlords notified (in progress)</li>
                 <li className="flex items-center gap-2">⏳ Offers expected within 24h</li>
               </ul>
             </div>
 
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-              <h2 className="font-bold text-slate-900">Savings estimate</h2>
-              <p className="mt-2 text-slate-700">Individual rent: ${budgetNum.toLocaleString()} HKD/month</p>
-              <p className="mt-1 text-slate-700">Estimated collective discount: 18%</p>
-              <p className="mt-2 font-semibold text-[#2563eb]">
+            <div className="card p-6">
+              <h2 className="font-bold text-white">Savings estimate</h2>
+              <p className="mt-2 text-[var(--color-muted)]">Individual rent: ${budgetNum.toLocaleString()} HKD/month</p>
+              <p className="mt-1 text-[var(--color-muted)]">Estimated collective discount: 18%</p>
+              <p className="mt-2 font-semibold text-[var(--color-primary)]">
                 Your savings: ${savingsPerMonth.toLocaleString()} HKD/month = ${savingsPerYear.toLocaleString()} HKD/year
               </p>
             </div>
 
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-[var(--color-muted)]">
               Your identity is never revealed to landlords.<br />
               Powered by Abelian anonymous transactions.
             </p>
