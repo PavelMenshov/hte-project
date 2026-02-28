@@ -1,7 +1,7 @@
 /**
  * AWS Bedrock integration for TenantShield.
  * When BEDROCK_AGENT_ID + BEDROCK_AGENT_ALIAS_ID are set, uses Bedrock Agent (AgentCore).
- * Otherwise: InvokeModel with Nova (default), Claude, or Titan.
+ * Otherwise: InvokeModel with Amazon Nova (default) or Titan.
  */
 
 function getConfig() {
@@ -57,14 +57,13 @@ function parseResultText(text: string): ContractAnalysisResult {
   return { summary: text.slice(0, 500), redFlags: [], recommendations: [] };
 }
 
-function extractText(decoded: Record<string, unknown>, kind: "nova" | "titan" | "claude"): string {
+function extractText(decoded: Record<string, unknown>, kind: "nova" | "titan"): string {
   if (kind === "nova") {
     const output = decoded.output as Record<string, unknown> | undefined;
     const message = output?.message as Record<string, unknown> | undefined;
     const content = message?.content as Array<{ text?: string }> | undefined;
     let text = content?.[0]?.text;
     if (typeof text === "string") return text;
-    // Some Nova responses may use top-level content
     const topContent = decoded.content as Array<{ text?: string }> | undefined;
     text = topContent?.[0]?.text;
     if (typeof text === "string") return text;
@@ -74,10 +73,6 @@ function extractText(decoded: Record<string, unknown>, kind: "nova" | "titan" | 
     const text = results?.[0]?.outputText;
     if (typeof text === "string") return text;
   }
-  // Claude
-  const content = decoded.content as Array<{ text?: string }> | undefined;
-  const text = content?.[0]?.text;
-  if (typeof text === "string") return text;
   return "{}";
 }
 
@@ -111,7 +106,7 @@ async function invokeAgent(contractText: string, config: ReturnType<typeof getCo
 }
 
 /**
- * Analyze contract text via Bedrock (no PII). Uses Agent if configured, else Nova/Claude/Titan.
+ * Analyze contract text via Bedrock (no PII). Uses Agent if configured, else InvokeModel (Nova or Titan).
  */
 export async function analyzeContractText(contractText: string): Promise<ContractAnalysisResult> {
   if (!contractText.trim()) {
@@ -126,18 +121,13 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
       const err = e as { message?: string };
       const msg = err.message ?? String(e);
       console.error("Bedrock Agent invokeAgent:", e);
-      const isAnthropicRegion = /Anthropic|unsupported countries|unsupported regions|territories/i.test(msg);
       return {
         summary: `Agent error: ${msg}`,
         redFlags: [],
-        recommendations: isAnthropicRegion
-          ? [
-              "Your agent uses Claude, which is not available from your region. Either: use a VPN to a supported country (e.g. US), or in AWS Console → Bedrock → your Agent → Edit: change the model to Amazon Nova, or remove BEDROCK_AGENT_ID from .env.local to use InvokeModel (Nova) instead.",
-            ]
-          : [
-              "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
-              "Ensure the agent has been created and alias exists. Test in AWS Console first.",
-            ],
+        recommendations: [
+          "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
+          "Ensure the agent uses Amazon Nova (e.g. amazon.nova-lite-v1:0). Test in AWS Console first.",
+        ],
       };
     }
   }
@@ -147,28 +137,18 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
   const client = new BedrockRuntimeClient({ region });
   const prompt = `${CONTRACT_ANALYZER_PROMPT}\n\n---\n${contractText.slice(0, 12000)}`;
 
-  const isNova = modelId.startsWith("amazon.nova");
   const isTitan = modelId.startsWith("amazon.titan");
-  let body: string;
-
-  if (isNova) {
-    body = JSON.stringify({
-      schemaVersion: "messages-v1",
-      messages: [{ role: "user", content: [{ text: prompt }] }],
-      inferenceConfig: { maxTokens: 1024, temperature: 0.3 },
-    });
-  } else if (isTitan) {
-    body = JSON.stringify({
-      inputText: prompt,
-      textGenerationConfig: { maxTokenCount: 1024, temperature: 0.3 },
-    });
-  } else {
-    body = JSON.stringify({
-      anthropic_version: "bedrock-2023-05-31",
-      max_tokens: 1024,
-      messages: [{ role: "user", content: [{ type: "text" as const, text: prompt }] }],
-    });
-  }
+  const body =
+    isTitan
+      ? JSON.stringify({
+          inputText: prompt,
+          textGenerationConfig: { maxTokenCount: 1024, temperature: 0.3 },
+        })
+      : JSON.stringify({
+          schemaVersion: "messages-v1",
+          messages: [{ role: "user", content: [{ text: prompt }] }],
+          inferenceConfig: { maxTokens: 1024, temperature: 0.3 },
+        });
 
   try {
     const response = await client.send(
@@ -180,37 +160,19 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
       })
     );
     const decoded = JSON.parse(new TextDecoder().decode(response.body)) as Record<string, unknown>;
-    const kind = isNova ? "nova" : isTitan ? "titan" : "claude";
+    const kind = isTitan ? "titan" : "nova";
     const text = extractText(decoded, kind);
     return parseResultText(text || "{}");
   } catch (e: unknown) {
-    const err = e as { name?: string; message?: string };
+    const err = e as { message?: string };
     const msg = typeof err.message === "string" ? err.message : String(e);
     console.error("Bedrock analyzeContractText:", e);
-
-    const isCountryRestriction =
-      err.name === "ValidationException" &&
-      typeof err.message === "string" &&
-      (err.message.includes("unsupported countries") || err.message.includes("not allowed from"));
-
-    if (isCountryRestriction) {
-      return {
-        summary: "Claude is not available in your region without VPN. Use Amazon Nova (no region block).",
-        redFlags: [],
-        recommendations: [
-          "In .env.local set: BEDROCK_MODEL_ID=amazon.nova-lite-v1:0",
-          "Restart the dev server (npm run dev).",
-        ],
-      };
-    }
-
     return {
       summary: `Bedrock error: ${msg}`,
       redFlags: [],
       recommendations: [
         "Check IAM: user needs bedrock:InvokeModel permission.",
-        "Use Amazon Nova (current, not EOL): BEDROCK_MODEL_ID=amazon.nova-lite-v1:0 in .env.local.",
-        "Or: amazon.nova-micro-v1:0 (smaller). In HK with VPN: anthropic.claude-sonnet-4-5-20250929-v1:0.",
+        "In .env.local set BEDROCK_MODEL_ID=amazon.nova-lite-v1:0 (or amazon.nova-micro-v1:0).",
         "Restart dev server after changing .env.local.",
       ],
     };
