@@ -1,6 +1,23 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { BedDouble, Square, Calendar, ShieldCheck, Star } from "lucide-react";
+
+type Listing = {
+  id: string;
+  title: string;
+  address: string;
+  district: string;
+  price: number;
+  size_sqft: number;
+  bedrooms: number;
+  available_from: string;
+  features: string[];
+  landlord_rating: number;
+  verified: boolean;
+  source_url: string;
+  scraped_at: string;
+};
 
 const DISTRICTS = ["Sai Kung", "Tuen Mun", "Sha Tin", "Tai Po", "Clear Water Bay"] as const;
 const MOVE_IN_MONTHS = (() => {
@@ -19,6 +36,9 @@ export default function CollectivePage() {
   const [count, setCount] = useState(0);
   const [targetCount, setTargetCount] = useState(0);
   const [avgBudget, setAvgBudget] = useState(0);
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
+  const [listingsLoading, setListingsLoading] = useState(false);
 
   useEffect(() => {
     if (!submitted) return;
@@ -40,6 +60,25 @@ export default function CollectivePage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSubmitted(true);
+    setListingsLoading(true);
+    fetch("/listings.json")
+      .then((r) => r.json())
+      .then((data: { listings: Listing[] }) => {
+        const budgetNum = Number(budget) || 0;
+        const filtered = data.listings.filter(
+          (l) =>
+            l.district === district &&
+            l.price <= budgetNum * 1.15
+        );
+        filtered.sort((a, b) => {
+          if (a.verified !== b.verified) return a.verified ? -1 : 1;
+          return a.price - b.price;
+        });
+        setListings(data.listings);
+        setFilteredListings(filtered);
+        setListingsLoading(false);
+      })
+      .catch(() => setListingsLoading(false));
   }
 
   const budgetNum = Number(budget) || 0;
@@ -82,6 +121,11 @@ export default function CollectivePage() {
                 onChange={(e) => setBudget(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
               />
+              {Number(budget) > 0 && (
+                <p className="mt-1 text-xs text-[var(--color-muted)]">
+                  We&apos;ll show listings up to HKD {(Number(budget) * 1.15).toLocaleString()} (+15% flex range)
+                </p>
+              )}
             </div>
             <div>
               <label htmlFor="collective-movein" className="block text-sm font-medium text-[var(--color-text)]">Move-in month</label>
@@ -130,6 +174,134 @@ export default function CollectivePage() {
               Your identity is never revealed to landlords.<br />
               Powered by Abelian anonymous transactions.
             </p>
+
+            {submitted && (
+              <div className="mt-10">
+                {listingsLoading ? (
+                  <div className="card animate-pulse p-6">
+                    <div className="mb-3 h-4 w-48 rounded bg-[var(--color-border)]" />
+                    <div className="h-4 w-32 rounded bg-[var(--color-border)]" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h2
+                        className="section-heading text-xl font-bold text-white"
+                        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                      >
+                        Available in {district}
+                      </h2>
+                      <span className="text-sm text-[var(--color-muted)]">
+                        {filteredListings.length > 0
+                          ? `${filteredListings.length} listings within budget`
+                          : "No exact matches — showing nearby"}
+                      </span>
+                    </div>
+
+                    {filteredListings.length === 0 && (
+                      <div className="card mt-4 border-[var(--color-warning)]/50 p-4">
+                        <p className="text-sm text-[var(--color-muted)]">
+                          No listings found within HKD {Number(budget).toLocaleString()} in {district}. Showing all available — consider adjusting your budget or joining the Collective Pool to negotiate a lower price.
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="mt-4 space-y-4">
+                      {(filteredListings.length > 0 ? filteredListings : listings.filter((l) => l.district === district)).map((l) => (
+                        <div
+                          key={l.id}
+                          className="card p-5 transition duration-200 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-[0_0_24px_rgba(0,212,255,0.2)]"
+                        >
+                          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
+                            <div>
+                              <h3 className="font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>{l.title}</h3>
+                              <p className="mt-0.5 text-sm text-[var(--color-muted)]">{l.address}</p>
+                            </div>
+                            <div className="flex shrink-0 flex-col items-start sm:items-end">
+                              <span className="text-xl font-bold text-[var(--color-primary)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                                HKD {l.price.toLocaleString()}
+                              </span>
+                              <span className="text-sm text-[var(--color-muted)]">/month</span>
+                            </div>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--color-muted)]">
+                            <span className="flex items-center gap-1">
+                              <BedDouble className="h-4 w-4" />
+                              {l.bedrooms} bed
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Square className="h-4 w-4" />
+                              {l.size_sqft} sqft
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="h-4 w-4" />
+                              From {new Date(l.available_from).toLocaleDateString("en-HK", { month: "short", day: "numeric", year: "numeric" })}
+                            </span>
+                          </div>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {l.features.map((f) => (
+                              <span
+                                key={f}
+                                className="rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-muted)]"
+                              >
+                                {f}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <div className="flex items-center gap-0.5">
+                                {[1, 2, 3, 4, 5].map((i) => (
+                                  <Star
+                                    key={i}
+                                    className={`h-3 w-3 ${i <= Math.floor(l.landlord_rating) ? "fill-amber-400 text-amber-400" : "text-[var(--color-border)]"}`}
+                                  />
+                                ))}
+                              </div>
+                              <span className="text-xs text-[var(--color-muted)]">{l.landlord_rating} landlord score</span>
+                              {l.verified ? (
+                                <span className="flex items-center gap-1 text-xs text-[var(--color-success)]">
+                                  <ShieldCheck className="h-4 w-4" />
+                                  TenantShield Verified
+                                </span>
+                              ) : (
+                                <span className="text-xs text-[var(--color-muted)]">Unverified</span>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <a
+                                href={l.source_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-[var(--color-primary)] hover:underline"
+                              >
+                                View listing →
+                              </a>
+                              <button
+                                type="button"
+                                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                                className="rounded border border-[var(--color-border)] px-2 py-1 text-xs text-[var(--color-text)] transition hover:border-[var(--color-primary)]"
+                              >
+                                Join pool for this
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {listings.length > 0 && (
+                      <p className="mt-4 text-center text-xs text-[var(--color-muted)]">
+                        Listings sourced from Squarefoot, Spacious, 28Hse via TenantShield scraper agent. Last updated:{" "}
+                        {new Date(
+                          listings.reduce((latest, x) => (x.scraped_at > latest ? x.scraped_at : latest), listings[0]?.scraped_at ?? "")
+                        ).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </main>
