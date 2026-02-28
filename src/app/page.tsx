@@ -121,9 +121,9 @@ export default function Home() {
                 <li key={m.id}>
                   <Link
                     href={m.href}
-                    className="card block p-6 transition hover:border-[var(--color-primary)]/40 hover:shadow-[0_0_0_1px_var(--color-border),0_4px_24px_rgba(0,212,255,0.08)]"
+                    className="card group block p-6 transition-all duration-300 ease-out hover:border-[var(--color-primary)] hover:shadow-[0_0_0_1px_var(--color-primary),0_0_24px_rgba(0,212,255,0.15),0_4px_24px_rgba(0,212,255,0.08)]"
                   >
-                    <span className="inline-flex rounded-lg bg-[var(--color-primary)]/10 p-2 text-[var(--color-primary)]">
+                    <span className="inline-flex rounded-lg bg-[var(--color-primary)]/10 p-2 text-[var(--color-primary)] transition-colors duration-300 group-hover:bg-[var(--color-primary)]/25">
                       <Icon className="h-6 w-6" strokeWidth={2} />
                     </span>
                     <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
