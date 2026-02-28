@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "share": "npx ngrok http 3000"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-agent-runtime": "^3.1000.0",

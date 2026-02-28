@@ -13,6 +13,15 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Adaptive layout: works on mobile and desktop.
 
+### Share via ngrok
+
+To expose the app to the internet (e.g. for demos or sharing with judges):
+
+1. In one terminal: `npm run dev` (keep it running).
+2. In another terminal: `npm run share` (runs `ngrok http 3000`).
+
+Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in a browser or share the link. The first time you may need to accept the ngrok cookie banner when visiting the URL.
+
 ## Environment
 
 | Variable | Purpose |
