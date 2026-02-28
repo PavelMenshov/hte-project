@@ -130,14 +130,25 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
       const err = e as { name?: string; message?: string; $metadata?: { requestId?: string; httpStatusCode?: number } };
       const msg = err.message ?? String(e);
       const requestId = err.$metadata?.requestId ?? "";
-      const code = err.$metadata?.httpStatusCode ?? "";
       console.error("[Bedrock Agent] invokeAgent failed:", {
         name: err.name,
         message: msg,
         requestId,
-        httpStatusCode: code,
         config: getAgentDebugInfo(config),
       });
+      const isAnthropicBlock = /Anthropic|unsupported countries|unsupported regions|territories/i.test(msg);
+      if (isAnthropicBlock) {
+        return {
+          summary: "Агент в AWS всё ещё использует модель Anthropic (Claude), которая недоступна из твоего региона. Ошибка приходит от Bedrock при вызове агента.",
+          redFlags: [],
+          recommendations: [
+            "В AWS Console: Bedrock → Agents → выбери своего агента → Edit. В блоке «Model» или «Foundation model» должна быть именно Amazon Nova (amazon.nova-lite-v1:0 или amazon.nova-micro-v1:0). Убедись, что нигде не выбран Claude.",
+            "Сохрани изменения (Save). Затем нажми Prepare agent и дождись окончания. Только после Prepare новая модель начнёт использоваться.",
+            "Если используешь Alias: убедись, что алиас указывает на последнюю версию (после Prepare создаётся новая версия). При необходимости создай новый Alias и его ID пропиши в BEDROCK_AGENT_ALIAS_ID.",
+            "Временный обходной путь: закомментируй BEDROCK_AGENT_ID и BEDROCK_AGENT_ALIAS_ID в .env.local — тогда будет прямой вызов Nova через InvokeModel (без агента).",
+          ],
+        };
+      }
       return {
         summary: `Agent error: ${msg}${requestId ? ` (RequestId: ${requestId})` : ""}`,
         redFlags: [],
