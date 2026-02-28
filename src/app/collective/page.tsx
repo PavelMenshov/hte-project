@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { BedDouble, Square, Calendar, ShieldCheck, Star } from "lucide-react";
+import { getSession, type AuthUser } from "@/lib/auth";
 
 type Listing = {
   id: string;
@@ -29,6 +31,9 @@ const MOVE_IN_MONTHS = (() => {
 })();
 
 export default function CollectivePage() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
   const [district, setDistrict] = useState<string>(DISTRICTS[0]);
   const [budget, setBudget] = useState<string>("12000");
   const [moveIn, setMoveIn] = useState<string>(MOVE_IN_MONTHS[0]);
@@ -39,6 +44,13 @@ export default function CollectivePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
   const [listingsLoading, setListingsLoading] = useState(false);
+
+  useEffect(() => {
+    const session = getSession();
+    setUser(session);
+    setAuthChecked(true);
+    if (!session) router.push("/login");
+  }, [router]);
 
   useEffect(() => {
     if (!submitted) return;
@@ -85,6 +97,9 @@ export default function CollectivePage() {
   const discount = 0.18;
   const savingsPerMonth = Math.round(budgetNum * discount);
   const savingsPerYear = savingsPerMonth * 12;
+
+  if (!authChecked) return null;
+  if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
