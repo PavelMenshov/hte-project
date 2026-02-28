@@ -73,7 +73,6 @@ Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in
 
 ## For judges (hackathon)
 
-- **Pitch summary:** Open [/pitch](http://localhost:3000/pitch) for problem, solution, architecture, and track coverage.
 - **Demo (2–3 min):** [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) — script for live or recorded demo.
 - **Judging checklist:** [docs/JUDGING_CHECKLIST.md](docs/JUDGING_CHECKLIST.md) — how we meet each track’s criteria.
 - **Architecture slide:** [docs/ARCHITECTURE_SLIDE.md](docs/ARCHITECTURE_SLIDE.md) — one-slide text for deck.
@@ -82,7 +81,7 @@ Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in
 
 ## Demo flow (hackathon)
 
-1. **Landing** → Modules + “Pitch” + “Try demo”.
+1. **Landing** → Modules + “Try demo”.
 2. **Contract Analyzer** → “Use sample contract (demo)” → Analyze (Bedrock; no PII). If AWS missing, friendly message is shown.
 3. **Deposit** → “Add QDay & Connect” → “Simulate deposit” → link to QDay Explorer. With deployed Escrow, real deposit works.
 4. **Legal Fund** → Same pattern: connect, simulate or real contribute.

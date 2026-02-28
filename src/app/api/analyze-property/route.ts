@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import propertiesData from "@/data/properties.json";
 import type { Property } from "@/types/property";
+import { getMarketProperty } from "@/lib/market-properties";
 import { analyzeProperty } from "@/lib/bedrock-property-agent";
 
 const PROPERTIES = (propertiesData as { properties: Property[] }).properties;
@@ -11,7 +12,10 @@ export async function POST(request: Request) {
     const id = typeof body.id === "string" ? body.id : body.propertyId;
     if (!id) return NextResponse.json({ error: "Missing property id" }, { status: 400 });
 
-    const property = PROPERTIES.find((p) => p.id === id);
+    let property: Property | null = PROPERTIES.find((p) => p.id === id) ?? null;
+    if (!property && id.startsWith("market-")) {
+      property = await getMarketProperty(id);
+    }
     if (!property) return NextResponse.json({ error: "Property not found" }, { status: 404 });
 
     const text = await analyzeProperty(property);

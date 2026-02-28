@@ -1,325 +1,222 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { BedDouble, Square, Calendar, ShieldCheck, Star } from "lucide-react";
-import { getSession, type AuthUser } from "@/lib/auth";
+import { useState } from "react";
+import Link from "next/link";
+import { Home, Building2, Calculator, Calendar, TrendingUp } from "lucide-react";
 
-type Listing = {
-  id: string;
-  title: string;
-  address: string;
-  district: string;
-  price: number;
-  size_sqft: number;
-  bedrooms: number;
-  available_from: string;
-  features: string[];
-  landlord_rating: number;
-  verified: boolean;
-  source_url: string;
-  scraped_at: string;
+const PORTFOLIO = {
+  total_tokens: 26_000,
+  token_price_hkd: 1_073,
+  monthly_gross_income: 100_000,
+  spv_fee_pct: 0.1,
+  investor_share_pct: 0.9,
+  properties: [
+    { name: "Sha Tin New Town Floor", rooms: 8, rent_per_room: 7_250 },
+    { name: "Sai Kung Residence Block A", rooms: 6, rent_per_room: 7_000 },
+  ],
 };
 
-const DISTRICTS = ["Sai Kung", "Tuen Mun", "Sha Tin", "Tai Po", "Clear Water Bay"] as const;
-const MOVE_IN_MONTHS = (() => {
-  const now = new Date();
-  return Array.from({ length: 3 }, (_, i) => {
-    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
-    return d.toLocaleString("en-US", { month: "long", year: "numeric" });
-  });
-})();
+const TOKENS_MIN = 1;
+const TOKENS_MAX = 500;
+const TOKENS_DEFAULT = 25;
 
 export default function CollectivePage() {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [authChecked, setAuthChecked] = useState(false);
-  const router = useRouter();
-  const [district, setDistrict] = useState<string>(DISTRICTS[0]);
-  const [budget, setBudget] = useState<string>("12000");
-  const [moveIn, setMoveIn] = useState<string>(MOVE_IN_MONTHS[0]);
-  const [submitted, setSubmitted] = useState(false);
-  const [count, setCount] = useState(0);
-  const [targetCount, setTargetCount] = useState(0);
-  const [avgBudget, setAvgBudget] = useState(0);
-  const [listings, setListings] = useState<Listing[]>([]);
-  const [filteredListings, setFilteredListings] = useState<Listing[]>([]);
-  const [listingsLoading, setListingsLoading] = useState(false);
+  const [tokens, setTokens] = useState(TOKENS_DEFAULT);
 
-  useEffect(() => {
-    const session = getSession();
-    setUser(session);
-    setAuthChecked(true);
-    if (!session) router.push("/login");
-  }, [router]);
+  const monthlyDistributed = PORTFOLIO.monthly_gross_income * PORTFOLIO.investor_share_pct;
+  const yourMonthly = (monthlyDistributed * tokens) / PORTFOLIO.total_tokens;
+  const yourQuarterly = yourMonthly * 3;
+  const yourAnnual = yourMonthly * 12;
+  const yourInvestmentHkd = tokens * PORTFOLIO.token_price_hkd;
+  const yieldPct = yourInvestmentHkd > 0 ? (yourAnnual / yourInvestmentHkd) * 100 : 0;
+  const sharePct = (tokens / PORTFOLIO.total_tokens) * 100;
 
-  useEffect(() => {
-    if (!submitted) return;
-    const target = 23 + Math.floor(Math.random() * (67 - 23 + 1));
-    setTargetCount(target);
-    const budgetNum = Number(budget) || 12000;
-    setAvgBudget(Math.round(budgetNum * 0.95 + Math.random() * budgetNum * 0.1));
-    const start = Date.now();
-    const duration = 1500;
-    const timer = setInterval(() => {
-      const elapsed = Date.now() - start;
-      const t = Math.min(elapsed / duration, 1);
-      setCount(Math.round(target * (1 - (1 - t) ** 2)));
-      if (t >= 1) clearInterval(timer);
-    }, 50);
-    return () => clearInterval(timer);
-  }, [submitted, budget]);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setSubmitted(true);
-    setListingsLoading(true);
-    fetch("/listings.json")
-      .then((r) => r.json())
-      .then((data: { listings: Listing[] }) => {
-        const budgetNum = Number(budget) || 0;
-        const filtered = data.listings.filter(
-          (l) =>
-            l.district === district &&
-            l.price <= budgetNum * 1.15
-        );
-        filtered.sort((a, b) => {
-          if (a.verified !== b.verified) return a.verified ? -1 : 1;
-          return a.price - b.price;
-        });
-        setListings(data.listings);
-        setFilteredListings(filtered);
-        setListingsLoading(false);
-      })
-      .catch(() => setListingsLoading(false));
-  }
-
-  const budgetNum = Number(budget) || 0;
-  const discount = 0.18;
-  const savingsPerMonth = Math.round(budgetNum * discount);
-  const savingsPerYear = savingsPerMonth * 12;
-
-  if (!authChecked) return null;
-  if (!user) return null;
+  const formatHKD = (n: number) =>
+    "HKD " + n.toLocaleString("en-HK", { maximumFractionDigits: 0 });
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
-      <main className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-        <h1 className="section-heading text-3xl font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-          Collective Rent Pool
-        </h1>
-        <p className="mt-2 text-[var(--color-muted)]">
-          Join anonymously. We aggregate demand and send one offer to landlords—you get a group discount.
-        </p>
+      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+        {/* Block 1: Hero */}
+        <section className="text-center">
+          <h1
+            className="section-heading text-4xl font-bold text-white sm:text-5xl"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Why 100 Co-owners Can&apos;t Run an Apartment
+          </h1>
+          <p className="mt-4 text-lg text-[var(--color-muted)]">
+            The collective ownership problem — and how Tenantshield solves it.
+          </p>
+        </section>
 
-        {!submitted ? (
-          <form onSubmit={handleSubmit} className="card mt-8 space-y-6 p-6">
-            <div>
-              <label htmlFor="collective-district" className="block text-sm font-medium text-[var(--color-text)]">District</label>
-              <select
-                id="collective-district"
-                value={district}
-                onChange={(e) => setDistrict(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-              >
-                {DISTRICTS.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label htmlFor="collective-budget" className="block text-sm font-medium text-[var(--color-text)]">Budget (HKD / month)</label>
-              <input
-                id="collective-budget"
-                type="number"
-                min={1}
-                value={budget}
-                onChange={(e) => setBudget(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-              />
-              {Number(budget) > 0 && (
-                <p className="mt-1 text-xs text-[var(--color-muted)]">
-                  We&apos;ll show listings up to HKD {(Number(budget) * 1.15).toLocaleString()} (+15% flex range)
-                </p>
-              )}
-            </div>
-            <div>
-              <label htmlFor="collective-movein" className="block text-sm font-medium text-[var(--color-text)]">Move-in month</label>
-              <select
-                id="collective-movein"
-                value={moveIn}
-                onChange={(e) => setMoveIn(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
-              >
-                {MOVE_IN_MONTHS.map((m) => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
-            </div>
-            <button type="submit" className="btn-primary w-full rounded-full py-3 text-sm">
-              Join the pool
-            </button>
-          </form>
-        ) : (
-          <div className="mt-8 space-y-6">
-            <div className="card p-6">
-              <p className="text-lg font-medium text-[var(--color-text)]">
-                You joined the pool. Currently <span className="font-bold text-[var(--color-primary)]">{count}</span> students in {district} with average budget $<span className="font-bold text-[var(--color-primary)]">{avgBudget.toLocaleString()}</span> HKD.
-              </p>
-            </div>
-
-            <div className="card border-[var(--color-primary)]/20 p-6" style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(0,212,255,0.06)" }}>
-              <h2 className="font-bold text-white">Collective offer sent to 4 landlords in {district}</h2>
-              <ul className="mt-4 space-y-2 text-[var(--color-muted)]">
-                <li className="flex items-center gap-2">✅ Pool formed (just now)</li>
-                <li className="flex items-center gap-2">⏳ Landlords notified (in progress)</li>
-                <li className="flex items-center gap-2">⏳ Offers expected within 24h</li>
-              </ul>
-            </div>
-
-            <div className="card p-6">
-              <h2 className="font-bold text-white">Savings estimate</h2>
-              <p className="mt-2 text-[var(--color-muted)]">Individual rent: ${budgetNum.toLocaleString()} HKD/month</p>
-              <p className="mt-1 text-[var(--color-muted)]">Estimated collective discount: 18%</p>
-              <p className="mt-2 font-semibold text-[var(--color-primary)]">
-                Your savings: ${savingsPerMonth.toLocaleString()} HKD/month = ${savingsPerYear.toLocaleString()} HKD/year
-              </p>
-            </div>
-
-            <p className="text-center text-sm text-[var(--color-muted)]">
-              Your identity is never revealed to landlords.<br />
-              Powered by Abelian anonymous transactions.
-            </p>
-
-            {submitted && (
-              <div className="mt-10">
-                {listingsLoading ? (
-                  <div className="card animate-pulse p-6">
-                    <div className="mb-3 h-4 w-48 rounded bg-[var(--color-border)]" />
-                    <div className="h-4 w-32 rounded bg-[var(--color-border)]" />
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h2
-                        className="section-heading text-xl font-bold text-white"
-                        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-                      >
-                        Available in {district}
-                      </h2>
-                      <span className="text-sm text-[var(--color-muted)]">
-                        {filteredListings.length > 0
-                          ? `${filteredListings.length} listings within budget`
-                          : "No exact matches — showing nearby"}
-                      </span>
-                    </div>
-
-                    {filteredListings.length === 0 && (
-                      <div className="card mt-4 border-[var(--color-warning)]/50 p-4">
-                        <p className="text-sm text-[var(--color-muted)]">
-                          No listings found within HKD {Number(budget).toLocaleString()} in {district}. Showing all available — consider adjusting your budget or joining the Collective Pool to negotiate a lower price.
-                        </p>
-                      </div>
-                    )}
-
-                    <div className="mt-4 space-y-4">
-                      {(filteredListings.length > 0 ? filteredListings : listings.filter((l) => l.district === district)).map((l) => (
-                        <div
-                          key={l.id}
-                          className="card p-5 transition duration-200 hover:-translate-y-1 hover:border-[var(--color-primary)] hover:shadow-[0_0_24px_rgba(0,212,255,0.2)]"
-                        >
-                          <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
-                            <div>
-                              <h3 className="font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>{l.title}</h3>
-                              <p className="mt-0.5 text-sm text-[var(--color-muted)]">{l.address}</p>
-                            </div>
-                            <div className="flex shrink-0 flex-col items-start sm:items-end">
-                              <span className="text-xl font-bold text-[var(--color-primary)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-                                HKD {l.price.toLocaleString()}
-                              </span>
-                              <span className="text-sm text-[var(--color-muted)]">/month</span>
-                            </div>
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-4 text-sm text-[var(--color-muted)]">
-                            <span className="flex items-center gap-1">
-                              <BedDouble className="h-4 w-4" />
-                              {l.bedrooms} bed
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Square className="h-4 w-4" />
-                              {l.size_sqft} sqft
-                            </span>
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-4 w-4" />
-                              From {new Date(l.available_from).toLocaleDateString("en-HK", { month: "short", day: "numeric", year: "numeric" })}
-                            </span>
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {l.features.map((f) => (
-                              <span
-                                key={f}
-                                className="rounded-full border border-[var(--color-border)] px-2 py-0.5 text-xs text-[var(--color-muted)]"
-                              >
-                                {f}
-                              </span>
-                            ))}
-                          </div>
-                          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <div className="flex items-center gap-0.5">
-                                {[1, 2, 3, 4, 5].map((i) => (
-                                  <Star
-                                    key={i}
-                                    className={`h-3 w-3 ${i <= Math.floor(l.landlord_rating) ? "fill-amber-400 text-amber-400" : "text-[var(--color-border)]"}`}
-                                  />
-                                ))}
-                              </div>
-                              <span className="text-xs text-[var(--color-muted)]">{l.landlord_rating} landlord score</span>
-                              {l.verified ? (
-                                <span className="flex items-center gap-1 text-xs text-[var(--color-success)]">
-                                  <ShieldCheck className="h-4 w-4" />
-                                  TenantShield Verified
-                                </span>
-                              ) : (
-                                <span className="text-xs text-[var(--color-muted)]">Unverified</span>
-                              )}
-                            </div>
-                            <div className="flex flex-wrap items-center gap-2">
-                              <a
-                                href={l.source_url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-xs text-[var(--color-primary)] hover:underline"
-                              >
-                                View listing →
-                              </a>
-                              <button
-                                type="button"
-                                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                                className="rounded border border-[var(--color-border)] px-2 py-1 text-xs text-[var(--color-text)] transition hover:border-[var(--color-primary)]"
-                              >
-                                Join pool for this
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {listings.length > 0 && (
-                      <p className="mt-4 text-center text-xs text-[var(--color-muted)]">
-                        Listings sourced from Squarefoot, Spacious, 28Hse via TenantShield scraper agent. Last updated:{" "}
-                        {new Date(
-                          listings.reduce((latest, x) => (x.scraped_at > latest ? x.scraped_at : latest), listings[0]?.scraped_at ?? "")
-                        ).toLocaleString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                      </p>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+        {/* Block 2: Two columns comparison */}
+        <section className="mt-16 grid gap-6 sm:grid-cols-2">
+          <div className="card border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-6">
+            <h2 className="text-lg font-bold text-[var(--color-danger)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+              ❌ Collective Ownership (Broken)
+            </h2>
+            <ul className="mt-4 space-y-3 text-sm text-[var(--color-muted)]">
+              <li>• 100 anonymous co-owners</li>
+              <li>• Who signs the lease? Nobody agrees.</li>
+              <li>• Tenant damages the flat — 100 people vote on repairs</li>
+              <li>• One owner wants to sell — blocks everyone</li>
+              <li>• Legally: joint liability nightmare</li>
+              <li className="font-medium text-[var(--color-danger)]">Result: No tenant will rent from 100 strangers</li>
+            </ul>
           </div>
-        )}
-      </main>
+          <div className="card border-[var(--color-success)]/30 bg-[var(--color-success)]/5 p-6">
+            <h2 className="text-lg font-bold text-[var(--color-success)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+              ✅ Tenantshield Model (How we do it)
+            </h2>
+            <ul className="mt-4 space-y-3 text-sm text-[var(--color-muted)]">
+              <li>• Tenantshield SPV is the single legal owner</li>
+              <li>• SPV signs leases, manages repairs, makes decisions</li>
+              <li>• You own tokens = a share of the company</li>
+              <li>• Same structure as an ETF or REIT</li>
+              <li className="font-medium text-[var(--color-success)]">Result: Professional management, you just earn</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* Block 3: Income distribution simulation */}
+        <section className="card mt-16 p-6 sm:p-8">
+          <h2
+            className="section-heading text-2xl font-bold text-white"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            How income is distributed
+          </h2>
+
+          <div className="mt-6 space-y-6">
+            <div>
+              <label className="flex items-center justify-between text-sm font-medium text-[var(--color-text)]">
+                <span>Your tokens</span>
+                <span className="font-mono text-[var(--color-primary)]">{tokens}</span>
+              </label>
+              <input
+                type="range"
+                min={TOKENS_MIN}
+                max={TOKENS_MAX}
+                value={tokens}
+                onChange={(e) => setTokens(Number(e.target.value))}
+                className="mt-2 h-2 w-full appearance-none rounded-full bg-[var(--color-border)] accent-[var(--color-primary)]"
+              />
+            </div>
+            <div>
+              <span className="text-sm font-medium text-[var(--color-muted)]">Total tokens outstanding</span>
+              <p className="mt-1 font-mono text-[var(--color-text)]">{PORTFOLIO.total_tokens.toLocaleString()}</p>
+            </div>
+          </div>
+
+          <div className="mt-8 rounded-lg bg-[var(--color-bg)]/60 p-4" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <p className="text-sm text-[var(--color-muted)]">Your share: <span className="font-semibold text-[var(--color-primary)]">{sharePct.toFixed(2)}%</span></p>
+            <p className="mt-2 text-sm text-[var(--color-muted)]">Monthly rental income (whole portfolio): {formatHKD(PORTFOLIO.monthly_gross_income)}</p>
+            <p className="mt-1 text-white">Your monthly share: <span className="text-[var(--color-primary)]">{formatHKD(yourMonthly)}</span></p>
+            <p className="mt-1 text-white">Your quarterly payout: <span className="text-[var(--color-primary)]">{formatHKD(yourQuarterly)}</span></p>
+            <p className="mt-1 text-white">Your annual income: <span className="text-[var(--color-primary)]">{formatHKD(yourAnnual)}</span></p>
+            <p className="mt-2 text-sm text-[var(--color-success)]">Annual yield on investment: {yieldPct.toFixed(1)}% (at {formatHKD(PORTFOLIO.token_price_hkd)} per token)</p>
+          </div>
+
+          <div className="mt-6 border-t border-[var(--color-border)] pt-6">
+            <p className="text-xs font-medium uppercase tracking-wide text-[var(--color-muted)]">Where HKD 100,000 comes from</p>
+            <ul className="mt-3 space-y-2 text-sm text-[var(--color-muted)]">
+              <li>• 2 active properties</li>
+              <li>• Sha Tin (8 rooms × {formatHKD(7250)}): {formatHKD(8 * 7250)}/mo gross</li>
+              <li>• Sai Kung (6 rooms × {formatHKD(7000)}): {formatHKD(6 * 7000)}/mo gross</li>
+              <li>• Total gross: {formatHKD(PORTFOLIO.monthly_gross_income)}</li>
+              <li>• SPV keeps 10%: {formatHKD(PORTFOLIO.monthly_gross_income * PORTFOLIO.spv_fee_pct)}</li>
+              <li className="text-[var(--color-primary)]">• Distributed to token holders: {formatHKD(monthlyDistributed)}</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* Block 4: Timeline */}
+        <section className="mt-16">
+          <h2
+            className="section-heading text-2xl font-bold text-white"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            How money reaches you
+          </h2>
+          <div className="mt-8 space-y-0">
+            {[
+              { icon: Home, title: "Tenant pays rent (1st of month)", desc: "Student pays HKD 7,250 for their room in Sha Tin co-living" },
+              { icon: Building2, title: "SPV receives full payment", desc: "Tenantshield SPV collects from all rooms across portfolio" },
+              { icon: Calculator, title: "Smart contract calculates shares", desc: "RevenueDistributor.sol splits 90% proportionally to all token holders" },
+              { icon: Calendar, title: "Quarterly distribution", desc: "Every 3 months: claim USDT to wallet or auto-reinvest into more tokens" },
+              { icon: TrendingUp, title: "Token NAV grows", desc: "As portfolio properties appreciate, each token is worth more" },
+            ].map((step, idx) => (
+              <div key={step.title} className="flex gap-4 transition-opacity duration-300 hover:opacity-100 sm:opacity-95">
+                <div className="flex flex-col items-center">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-[var(--color-primary)] bg-[var(--color-surface)] text-[var(--color-primary)]">
+                    <step.icon className="h-5 w-5" />
+                  </div>
+                  {idx < 4 && <div className="mt-1 h-full w-0.5 flex-1 bg-[var(--color-border)]" />}
+                </div>
+                <div className="pb-10">
+                  <h3 className="font-semibold text-white">{step.title}</h3>
+                  <p className="mt-0.5 text-sm text-[var(--color-muted)]">{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Block 5: Three cards */}
+        <section className="mt-16">
+          <h2
+            className="section-heading text-2xl font-bold text-white"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Why this beats renting alone
+          </h2>
+          <div className="mt-8 grid gap-6 sm:grid-cols-3">
+            <div className="card border-[var(--color-border)] p-5">
+              <h3 className="font-bold text-[var(--color-muted)]">Renting alone</h3>
+              <p className="mt-2 text-sm text-[var(--color-text)]">You pay: {formatHKD(12_000)}/month</p>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">You own: Nothing</p>
+              <p className="mt-3 text-xs text-[var(--color-danger)]">After 5 years: HKD 0 left</p>
+            </div>
+            <div className="card border-[var(--color-primary)]/20 p-5">
+              <h3 className="font-bold text-[var(--color-primary)]">Tenantshield co-living room</h3>
+              <p className="mt-2 text-sm text-[var(--color-text)]">You pay: {formatHKD(7_250)}/month (as tenant)</p>
+              <p className="mt-1 text-sm text-[var(--color-success)]">Save vs market: {formatHKD(4_750)}/mo</p>
+              <p className="mt-3 text-xs text-[var(--color-muted)]">After 5 years: Still HKD 0, but saved {formatHKD(285_000)}</p>
+            </div>
+            <div className="card border-[var(--color-success)]/30 bg-[var(--color-success)]/5 p-5">
+              <h3 className="font-bold text-[var(--color-success)]">Tenantshield tokens (HKD 10,000 invested)</h3>
+              <p className="mt-2 text-sm text-[var(--color-text)]">You invest once: {formatHKD(10_000)}</p>
+              <p className="mt-1 text-sm text-[var(--color-text)]">You earn: {formatHKD(830)}/year</p>
+              <p className="mt-3 text-xs font-medium text-[var(--color-success)]">After 5 years: HKD 15,100 (+51%)</p>
+              <p className="mt-2 text-xs font-semibold text-[var(--color-primary)]">Best of both worlds: rent a room + invest tokens with savings</p>
+            </div>
+          </div>
+        </section>
+
+        {/* Block 6: CTA */}
+        <section className="card mt-16 border-[var(--color-primary)]/30 p-8 text-center">
+          <h2
+            className="text-xl font-bold text-white sm:text-2xl"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Ready to be on the receiving end of rent?
+          </h2>
+          <p className="mt-2 text-[var(--color-muted)]">Stop paying rent. Start earning it.</p>
+          <p className="mt-1 text-sm text-[var(--color-muted)]">Buy Tenantshield tokens from HKD 1,000.</p>
+          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
+            <Link href="/invest" className="btn-primary inline-flex rounded-full px-8 py-3 text-sm">
+              Buy Tokens →
+            </Link>
+            <Link
+              href="/properties"
+              className="inline-flex rounded-full border-2 border-[var(--color-border)] bg-transparent px-8 py-3 text-sm font-semibold text-[var(--color-text)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+            >
+              See Portfolio →
+            </Link>
+          </div>
+        </section>
+      </div>
     </div>
   );
 }

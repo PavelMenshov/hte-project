@@ -22,11 +22,26 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET() {
-  const districts: HKDistrict[] = ["Kwun Tong", "Mong Kok", "Sha Tin", "Tuen Mun"];
+const DISTRICTS: HKDistrict[] = ["Kwun Tong", "Mong Kok", "Sha Tin", "Tuen Mun"];
+
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const district = searchParams.get("district") as HKDistrict | null;
+
+  if (district && DISTRICTS.includes(district)) {
+    const cache = await loadDistrictCache(district);
+    if (!cache) return NextResponse.json({ district, cached: false, listings: [], market_stats: null, updatedAt: null });
+    return NextResponse.json({
+      district: cache.district,
+      cached: true,
+      listings: cache.listings,
+      market_stats: cache.market_stats,
+      updatedAt: cache.updatedAt,
+    });
+  }
 
   const status = await Promise.all(
-    districts.map(async (d) => {
+    DISTRICTS.map(async (d) => {
       const cache = await loadDistrictCache(d);
       return {
         district: d,

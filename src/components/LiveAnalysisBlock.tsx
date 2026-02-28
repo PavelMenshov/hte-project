@@ -2,9 +2,33 @@
 
 import { useState } from "react";
 
-type Props = { propertyId: string };
+export type ParsedAnalysis = {
+  ai_score: number;
+  ai_recommendation: "BUY" | "HOLD" | "REJECT";
+  ai_growth_forecast_pct?: number;
+  risk_level?: "LOW" | "MEDIUM" | "HIGH";
+};
 
-export default function LiveAnalysisBlock({ propertyId }: Props) {
+function parseAnalysisText(text: string): Partial<ParsedAnalysis> | null {
+  const out: Partial<ParsedAnalysis> = {};
+  const scoreMatch = text.match(/AI SCORE[^\d]*([\d.]+)/i) || text.match(/([\d.]+)\s*\/\s*10\b/);
+  if (scoreMatch) out.ai_score = Math.min(10, Math.max(0, Number.parseFloat(scoreMatch[1]) || 0));
+  const recMatch = text.match(/RECOMMENDATION:\s*(BUY|HOLD|REJECT)/i);
+  if (recMatch) out.ai_recommendation = recMatch[1].toUpperCase() as "BUY" | "HOLD" | "REJECT";
+  const growthMatch = text.match(/GROWTH FORECAST[^\d]*([\d.]+)\s*%?/i) || text.match(/([\d.]+)\s*%\s*annual/);
+  if (growthMatch) out.ai_growth_forecast_pct = Number.parseFloat(growthMatch[1]) || 0;
+  const riskMatch = text.match(/risk[:\s]+(LOW|MEDIUM|HIGH)/i);
+  if (riskMatch) out.risk_level = riskMatch[1].toUpperCase() as "LOW" | "MEDIUM" | "HIGH";
+  if (out.ai_score !== undefined || out.ai_recommendation) return out;
+  return null;
+}
+
+type Props = Readonly<{
+  propertyId: string;
+  onAnalysisComplete?: (parsed: ParsedAnalysis) => void;
+}>;
+
+export default function LiveAnalysisBlock({ propertyId, onAnalysisComplete }: Props) {
   const [text, setText] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +43,11 @@ export default function LiveAnalysisBlock({ propertyId }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: propertyId }),
       });
-      if (!res.ok) throw new Error("Analysis failed");
+      if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        const msg = typeof errBody?.error === "string" ? errBody.error : "Analysis failed";
+        throw new Error(msg);
+      }
       const reader = res.body?.getReader();
       if (!reader) throw new Error("No stream");
       const decoder = new TextDecoder();
@@ -29,6 +57,15 @@ export default function LiveAnalysisBlock({ propertyId }: Props) {
         if (done) break;
         acc += decoder.decode(value, { stream: true });
         setText(acc);
+      }
+      const parsed = parseAnalysisText(acc);
+      if (parsed && onAnalysisComplete) {
+        onAnalysisComplete({
+          ai_score: parsed.ai_score ?? 0,
+          ai_recommendation: parsed.ai_recommendation ?? "HOLD",
+          ai_growth_forecast_pct: parsed.ai_growth_forecast_pct,
+          risk_level: parsed.risk_level,
+        });
       }
     } catch (e) {
       setError((e as Error).message);

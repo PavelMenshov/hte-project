@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import propertiesData from "@/data/properties.json";
+import { getMarketProperty } from "@/lib/market-properties";
 import type { Property } from "@/types/property";
 import StatusBadge from "@/components/StatusBadge";
-import AIScoreBadge from "@/components/AIScoreBadge";
 import InvestCTABlock from "@/components/InvestCTABlock";
-import LiveAnalysisBlock from "@/components/LiveAnalysisBlock";
+import PropertyAICard from "@/components/PropertyAICard";
 
 const PROPERTIES = (propertiesData as { properties: Property[] }).properties;
 
@@ -13,7 +13,10 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function PropertyPage({ params }: Props) {
   const { id } = await params;
-  const property = PROPERTIES.find((p) => p.id === id);
+  let property = PROPERTIES.find((p) => p.id === id);
+  if (!property && id.startsWith("market-")) {
+    property = await getMarketProperty(id) ?? null;
+  }
   if (!property) notFound();
 
   const formatHKD = (n: number) =>
@@ -94,76 +97,22 @@ export default async function PropertyPage({ params }: Props) {
 
           {/* Right: AI report */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="card p-6">
-              <h3
-                className="font-bold text-white"
-                style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-              >
-                🤖 AI Acquisition Analysis
-              </h3>
-              <p className="mt-1 text-xs text-[var(--color-muted)]">Powered by AWS Bedrock AgentCore</p>
-              <div className="mt-4 flex items-center gap-4">
-                <span
-                  className={`text-lg font-bold ${
-                    property.ai_recommendation === "BUY"
-                      ? "text-[var(--color-success)]"
-                      : property.ai_recommendation === "HOLD"
-                        ? "text-[var(--color-warning)]"
-                        : "text-[var(--color-danger)]"
-                  }`}
+            {property.status === "from_market" && property.listing_url && (
+              <div className="space-y-2">
+                <p className="text-sm text-[var(--color-muted)]">
+                  Full description, photos and contact are on the listing site.
+                </p>
+                <a
+                  href={property.listing_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="card block p-4 text-center font-medium text-[var(--color-primary)] hover:border-[var(--color-primary)] hover:bg-[var(--color-primary)]/10"
                 >
-                  RECOMMENDATION: {property.ai_recommendation}
-                </span>
-                <AIScoreBadge score={property.ai_score} />
+                  {property.listing_url.includes("28hse") ? "View full listing on 28hse →" : "View full listing →"}
+                </a>
               </div>
-              <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
-                  <span className="text-[var(--color-muted)]">Yield</span>
-                  <span className="ml-2 font-mono text-[var(--color-primary)]">{property.net_yield_pct.toFixed(1)}%/yr</span>
-                </div>
-                <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
-                  <span className="text-[var(--color-muted)]">Growth</span>
-                  <span className="ml-2 font-mono">+{property.ai_growth_forecast_pct.toFixed(1)}%/yr</span>
-                </div>
-                <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
-                  <span className="text-[var(--color-muted)]">Risk</span>
-                  <span className="ml-2 font-mono">{property.risk_level}</span>
-                </div>
-              </div>
-              {property.ai_buy_reasons.length > 0 && (
-                <div className="mt-4">
-                  <h4 className="text-sm font-semibold text-[var(--color-success)]">Why AI recommended {property.ai_recommendation}:</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-[var(--color-text)]">
-                    {property.ai_buy_reasons.map((r, i) => (
-                      <li key={i}>✅ {r}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {property.ai_concerns.length > 0 && (
-                <div className="mt-3">
-                  <h4 className="text-sm font-semibold text-[var(--color-warning)]">Concerns:</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-[var(--color-muted)]">
-                    {property.ai_concerns.map((c, i) => (
-                      <li key={i}>⚠️ {c}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {property.ai_rejected_alternatives.length > 0 && (
-                <div className="mt-3">
-                  <h4 className="text-sm font-semibold text-[var(--color-muted)]">Properties AI rejected (same period):</h4>
-                  <ul className="mt-2 space-y-1 text-sm text-[var(--color-muted)]">
-                    {property.ai_rejected_alternatives.map((a, i) => (
-                      <li key={i}>❌ {a.description} — {a.reason}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-
-            <LiveAnalysisBlock propertyId={property.id} />
-
+            )}
+            <PropertyAICard property={property} />
             <InvestCTABlock />
           </div>
         </div>

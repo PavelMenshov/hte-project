@@ -1,8 +1,10 @@
 export interface MarketListing {
   id: string;
-  source: "squarefoot" | "centaline" | "mock";
+  source: "squarefoot" | "centaline" | "mock" | "28hse";
   url: string;
   scrapedAt: string;
+  /** First listing image URL from source (e.g. 28hse card thumbnail) */
+  image_url?: string;
 
   address: string;
   district: HKDistrict;

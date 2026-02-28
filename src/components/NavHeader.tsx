@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 
 const NAV_LINKS = [
@@ -11,7 +11,6 @@ const NAV_LINKS = [
   { href: "/invest", label: "Invest" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/about", label: "About" },
-  { href: "/pitch", label: "Pitch" },
 ] as const;
 
 export default function NavHeader() {
@@ -19,6 +18,7 @@ export default function NavHeader() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     setUser(getSession());
@@ -52,15 +52,20 @@ export default function NavHeader() {
           TENANTSHIELD
         </Link>
         <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
-          {NAV_LINKS.map(({ href, label }) => (
-            <Link
-              key={href}
-              href={href}
-              className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-primary)]"
-            >
-              {label}
-            </Link>
-          ))}
+          {NAV_LINKS.map(({ href, label }) => {
+            const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+            return (
+              <Link
+                key={href}
+                href={href}
+                className={`relative rounded-lg px-3 py-2 text-sm font-medium transition hover:text-[var(--color-primary)] ${
+                  isActive ? "text-[var(--color-primary)] nav-link-active" : "text-[var(--color-muted)]"
+                }`}
+              >
+                {label}
+              </Link>
+            );
+          })}
           {user == null ? (
             <>
               <Link

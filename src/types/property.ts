@@ -1,4 +1,4 @@
-export type PropertyStatus = "in_portfolio" | "analyzing" | "rejected";
+export type PropertyStatus = "in_portfolio" | "analyzing" | "rejected" | "from_market";
 export type RiskLevel = "LOW" | "MEDIUM" | "HIGH";
 export type AIRecommendation = "BUY" | "HOLD" | "REJECT";
 
@@ -28,6 +28,8 @@ export type Property = {
   tenants_max: number;
   images: string[];
   features: string[];
+  /** When status is from_market, link to listing on Squarefoot */
+  listing_url?: string;
 };
 
 export type Portfolio = {
