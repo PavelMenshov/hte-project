@@ -17,7 +17,7 @@ export default function Home() {
     <div className="min-h-screen text-[var(--color-text)]">
       {/* Hero */}
       <section className="hero-grid relative flex min-h-[100dvh] flex-col justify-center px-4 pb-20 pt-8 sm:px-6">
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-5xl animate-fade-in-down">
           <h1
             className="whitespace-pre-line text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl"
             style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
@@ -46,7 +46,7 @@ export default function Home() {
 
       {/* How it works — 3 steps */}
       <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]/50 py-16">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 animate-fade-in-down-delay-1">
           <h2
             className="section-heading mb-12 text-3xl font-bold text-white"
             style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}

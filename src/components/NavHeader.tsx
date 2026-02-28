@@ -9,6 +9,7 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/properties", label: "Properties" },
   { href: "/invest", label: "Invest" },
+  { href: "/rental", label: "Rental" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/about", label: "About" },
 ] as const;
@@ -21,7 +22,7 @@ export default function NavHeader() {
   const pathname = usePathname();
 
   useEffect(() => {
-    setUser(getSession());
+    queueMicrotask(() => setUser(getSession()));
   }, []);
 
   useEffect(() => {
@@ -89,7 +90,7 @@ export default function NavHeader() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-danger)]"
+                className="btn-primary rounded-full px-4 py-2 text-sm"
               >
                 Logout
               </button>
@@ -152,7 +153,7 @@ export default function NavHeader() {
                 <button
                   type="button"
                   onClick={handleLogout}
-                  className="block w-full py-2 px-3 rounded-lg text-left text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/5 transition"
+                  className="btn-primary w-full rounded-full px-4 py-2 text-sm text-center"
                 >
                   Logout
                 </button>

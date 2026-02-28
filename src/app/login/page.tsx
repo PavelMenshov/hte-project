@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import { saveSession } from "@/lib/auth";
 
@@ -17,6 +17,10 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const from = searchParams.get("from");
+  const allowedFrom = ["/invest", "/rental", "/dashboard"];
+  const redirectTo = from && allowedFrom.includes(from) ? from : "/";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,7 +39,7 @@ export default function LoginPage() {
       }
       if (data.success && data.user) {
         saveSession(data.user);
-        router.push("/");
+        router.push(redirectTo);
       } else {
         setError("Invalid response");
       }

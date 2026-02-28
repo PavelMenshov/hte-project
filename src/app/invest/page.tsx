@@ -1,6 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { getSession } from "@/lib/auth";
+import { addStoredTokens } from "@/lib/user-tokens";
 import InvestmentCalculator from "@/components/InvestmentCalculator";
 import PrivacyBlock from "@/components/PrivacyBlock";
 
@@ -12,9 +15,23 @@ type PurchaseResult = {
 } | null;
 
 export default function InvestPage() {
+  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState<PurchaseResult>(null);
   const [securing, setSecuring] = useState(false);
+
+  useEffect(() => {
+    queueMicrotask(() => setMounted(true));
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !getSession()) {
+      router.replace("/login?from=/invest");
+    }
+  }, [mounted, router]);
+
+  if (!mounted) return null;
 
   async function handleSimulate(amountHkd: number, _payoutType: "quarterly" | "reinvest") {
     setSecuring(true);
@@ -26,19 +43,25 @@ export default function InvestPage() {
         body: JSON.stringify({ amountHkd, walletType: "demo" }),
       });
       const data = (await res.json()) as { transactionHash?: string; tokensReceived?: number };
+      const tokensReceived = data.tokensReceived ?? Math.floor(amountHkd / 1073);
       setPurchaseResult({
         transactionHash: data.transactionHash ?? "0x" + new Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(""),
-        tokensReceived: data.tokensReceived ?? Math.floor(amountHkd / 1073),
+        tokensReceived,
         timestamp: new Date().toISOString(),
         amountHkd,
       });
+      const user = getSession();
+      if (user?.email) addStoredTokens(user.email, tokensReceived);
     } catch {
+      const tokensReceived = Math.floor(amountHkd / 1073);
       setPurchaseResult({
         transactionHash: "0x" + new Array(64).fill(0).map(() => Math.floor(Math.random() * 16).toString(16)).join(""),
-        tokensReceived: Math.floor(amountHkd / 1073),
+        tokensReceived,
         timestamp: new Date().toISOString(),
         amountHkd,
       });
+      const user = getSession();
+      if (user?.email) addStoredTokens(user.email, tokensReceived);
     } finally {
       setSecuring(false);
     }
