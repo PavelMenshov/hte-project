@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { AlertCircle, CheckCircle2, FileUp } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { AlertCircle, CheckCircle2, FileUp, Eraser } from "lucide-react";
 import type { ContractAnalysisResult } from "@/lib/bedrock";
 
 const SAMPLE_TEXT = `TENANCY AGREEMENT
@@ -40,6 +40,7 @@ export default function ContractPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ContractAnalysisResult | null>(null);
   const [apiError, setApiError] = useState<string | null>(null);
+  const reportRef = useRef<HTMLDivElement>(null);
 
   async function handleAnalyze() {
     if (!text.trim()) return;
@@ -75,8 +76,20 @@ export default function ContractPage() {
     }
   }
 
+  function handleClear() {
+    setText("");
+    setResult(null);
+    setApiError(null);
+  }
+
   const riskLevel = result ? getRiskLevel(result.redFlags.length) : null;
   const riskBarWidth = result ? getRiskBarWidth(result.redFlags.length) : 0;
+
+  useEffect(() => {
+    if (result && reportRef.current) {
+      reportRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [result]);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
@@ -108,27 +121,43 @@ export default function ContractPage() {
         </div>
 
         <textarea
+          id="contract-text"
           className="mt-4 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 font-mono text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
           rows={12}
           placeholder="Paste contract text here (or use sample above)..."
           value={text}
-          onChange={(e) => setText(e.target.value)}
+          onChange={(e) => {
+            setText(e.target.value);
+            if (apiError) setApiError(null);
+          }}
+          aria-label="Contract text"
+          aria-busy={loading}
         />
-        <button
-          type="button"
-          onClick={handleAnalyze}
-          disabled={loading || !text.trim()}
-          className="btn-primary mt-4 rounded-full px-6 py-3 text-sm disabled:opacity-50"
-        >
-          {loading ? "Analyzing…" : "Analyze"}
-        </button>
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleAnalyze}
+            disabled={loading || !text.trim()}
+            className="btn-primary rounded-full px-6 py-3 text-sm disabled:opacity-50"
+          >
+            {loading ? "Analyzing…" : "Analyze"}
+          </button>
+          <button
+            type="button"
+            onClick={handleClear}
+            className="inline-flex items-center rounded-full border border-[var(--color-border)] px-6 py-3 text-sm font-medium text-[var(--color-muted)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+          >
+            <Eraser className="mr-2 h-4 w-4" aria-hidden />
+            Clear
+          </button>
+        </div>
 
         {apiError && (
           <p className="mt-4 text-sm font-medium text-[var(--color-warning)]">Note: {apiError}</p>
         )}
 
         {result && (
-          <div className="mt-10 space-y-6">
+          <div ref={reportRef} className="mt-10 space-y-6" aria-live="polite">
             {/* Threat level bar */}
             <div className="card p-6">
               <h2 className="mb-3 text-lg font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>

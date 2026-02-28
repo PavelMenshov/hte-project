@@ -102,3 +102,16 @@ body {
 .vault-pulse {
   animation: vault-pulse 2s ease-in-out infinite;
 }
+
+/* Focus visible for keyboard navigation */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Select options: ensure dark theme contrast */
+select option {
+  background: var(--color-surface);
+  color: var(--color-text);
+}

@@ -60,8 +60,9 @@ export default function CollectivePage() {
         {!submitted ? (
           <form onSubmit={handleSubmit} className="card mt-8 space-y-6 p-6">
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text)]">District</label>
+              <label htmlFor="collective-district" className="block text-sm font-medium text-[var(--color-text)]">District</label>
               <select
+                id="collective-district"
                 value={district}
                 onChange={(e) => setDistrict(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
@@ -72,8 +73,9 @@ export default function CollectivePage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text)]">Budget (HKD / month)</label>
+              <label htmlFor="collective-budget" className="block text-sm font-medium text-[var(--color-text)]">Budget (HKD / month)</label>
               <input
+                id="collective-budget"
                 type="number"
                 min={1}
                 value={budget}
@@ -82,8 +84,9 @@ export default function CollectivePage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-[var(--color-text)]">Move-in month</label>
+              <label htmlFor="collective-movein" className="block text-sm font-medium text-[var(--color-text)]">Move-in month</label>
               <select
+                id="collective-movein"
                 value={moveIn}
                 onChange={(e) => setMoveIn(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"

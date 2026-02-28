@@ -52,11 +52,12 @@ export default function DepositPage() {
           setError("Enter a valid landlord address (0x...)");
           return;
         }
-        const valueWei = BigInt(Math.floor(parseFloat(amount) * 1e18));
-        if (valueWei <= BigInt(0)) {
-          setError("Amount must be > 0");
+        const amountNum = Number.parseFloat(amount);
+        if (!Number.isFinite(amountNum) || amountNum <= 0) {
+          setError("Amount must be a positive number");
           return;
         }
+        const valueWei = BigInt(Math.floor(amountNum * 1e18));
         const hash = await escrowDeposit(addr, valueWei);
         setTxHash(hash);
       } else {
@@ -118,17 +119,20 @@ export default function DepositPage() {
               </p>
               {escrowDeployed ? (
                 <>
-                  <label className="mt-4 block text-sm font-medium text-[var(--color-text)]">Landlord address (0x…)</label>
+                  <label htmlFor="deposit-landlord" className="mt-4 block text-sm font-medium text-[var(--color-text)]">Landlord address (0x…)</label>
                   <input
+                    id="deposit-landlord"
                     type="text"
                     placeholder="0x..."
                     value={landlord}
                     onChange={(e) => setLandlord(e.target.value)}
                     className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
                   />
-                  <label className="mt-3 block text-sm font-medium text-[var(--color-text)]">Amount (QDAY)</label>
+                  <label htmlFor="deposit-amount" className="mt-3 block text-sm font-medium text-[var(--color-text)]">Amount (QDAY)</label>
                   <input
+                    id="deposit-amount"
                     type="text"
+                    inputMode="decimal"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 font-mono text-sm text-[var(--color-text)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
