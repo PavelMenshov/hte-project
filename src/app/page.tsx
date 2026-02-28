@@ -3,7 +3,7 @@ import Link from "next/link";
 const MODULES = [
   { id: "contract", title: "Contract Analyzer", short: "AI checks your lease for illegal clauses (HK law). No PII to the cloud.", href: "/contract", icon: "📄" },
   { id: "deposit", title: "Deposit Pool", short: "Escrow on QDay. Landlord sees guarantee, not your identity.", href: "/deposit", icon: "🔒" },
-  { id: "pool", title: "Collective Rent Pool", short: "Anonymous group requests → 15–25% discount. Powered by AI + Abelian.", href: "/pool", icon: "👥" },
+  { id: "pool", title: "Collective Rent Pool", short: "Anonymous group requests → 15–25% discount. Powered by AI + Abelian.", href: "/collective", icon: "👥" },
   { id: "legal", title: "Legal Fund", short: "HK$5/month into shared fund. Disputes → matched lawyer from fund.", href: "/legal", icon: "⚖️" },
   { id: "reviews", title: "Anonymous Reviews", short: "Verified tenant reviews. Author anonymized on-chain.", href: "/reviews", icon: "⭐" },
   { id: "sublease", title: "Sublease Coordinator", short: "Summer away? AI finds temp tenant; payments split on-chain.", href: "/sublease", icon: "🔄" },
@@ -21,6 +21,9 @@ export default function Home() {
           <nav className="flex items-center gap-4 sm:gap-6">
             <Link href="/#modules" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
               Modules
+            </Link>
+            <Link href="/collective" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
+              Collective
             </Link>
             <Link href="/pitch" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
               Pitch

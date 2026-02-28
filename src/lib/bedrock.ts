@@ -1,13 +1,20 @@
 /**
  * AWS Bedrock integration for TenantShield.
- * Supports: Amazon Nova (default, no EOL), Claude (Anthropic), Titan (legacy format).
+ * When BEDROCK_AGENT_ID + BEDROCK_AGENT_ALIAS_ID are set, uses Bedrock Agent (AgentCore).
+ * Otherwise: InvokeModel with Nova (default), Claude, or Titan.
  */
 
 function getConfig() {
+  const region = process.env.AWS_REGION ?? "us-east-1";
+  const agentId = process.env.BEDROCK_AGENT_ID?.trim();
+  const agentAliasId = process.env.BEDROCK_AGENT_ALIAS_ID?.trim();
+  const modelId = (process.env.BEDROCK_MODEL_ID ?? "amazon.nova-lite-v1:0").trim();
   return {
-    region: process.env.AWS_REGION ?? "us-east-1",
-    // Default: Amazon Nova Lite (current, not EOL). In HK with VPN: anthropic.claude-sonnet-4-5-20250929-v1:0
-    modelId: (process.env.BEDROCK_MODEL_ID ?? "amazon.nova-lite-v1:0").trim(),
+    region,
+    modelId,
+    useAgent: !!(agentId && agentAliasId),
+    agentId: agentId ?? "",
+    agentAliasId: agentAliasId ?? "",
   };
 }
 
@@ -27,7 +34,22 @@ function parseResultText(text: string): ContractAnalysisResult {
   const jsonMatch = text.match(/\{[\s\S]*\}/);
   if (jsonMatch) {
     try {
-      return JSON.parse(jsonMatch[0]) as ContractAnalysisResult;
+      const parsed = JSON.parse(jsonMatch[0]) as Record<string, unknown>;
+      // Agent may return red_flags, illegal_clauses, market_comparison — map to our shape
+      const redFlags = (parsed.red_flags as string[] | undefined) ?? (parsed.redFlags as string[] | undefined) ?? [];
+      const illegal = (parsed.illegal_clauses as string[] | undefined) ?? [];
+      const recs = (parsed.recommendations as string[] | undefined) ?? [];
+      const market = parsed.market_comparison as Record<string, unknown> | undefined;
+      const summary = (parsed.summary as string) ?? "";
+      const marketNote = market ? JSON.stringify(market) : (parsed.marketNote as string | undefined);
+      const combinedRedFlags = [...redFlags, ...illegal];
+      return {
+        summary: summary || (combinedRedFlags.length > 0 ? `Found ${redFlags.length} red flags, ${illegal.length} illegal clauses.` : text.slice(0, 500)),
+        redFlags: combinedRedFlags,
+        recommendations: recs,
+        marketNote,
+        legalRefs: parsed.legalRefs as string[] | undefined,
+      };
     } catch {
       // fall through
     }
@@ -60,14 +82,61 @@ function extractText(decoded: Record<string, unknown>, kind: "nova" | "titan" | 
 }
 
 /**
- * Analyze contract text via Bedrock (no PII). Uses Nova, Claude, or Titan depending on BEDROCK_MODEL_ID.
+ * Invoke Bedrock Agent (TenantShield-ContractAnalyzer) and return parsed result.
+ */
+async function invokeAgent(contractText: string, config: ReturnType<typeof getConfig>): Promise<ContractAnalysisResult> {
+  const { BedrockAgentRuntimeClient, InvokeAgentCommand } = await import("@aws-sdk/client-bedrock-agent-runtime");
+  const client = new BedrockAgentRuntimeClient({ region: config.region });
+  const prompt = `Analyze this tenancy agreement and output structured JSON (red_flags[], illegal_clauses[], market_comparison{}, recommendations[]).\n\n---\n${contractText.slice(0, 12000)}`;
+
+  const response = await client.send(
+    new InvokeAgentCommand({
+      agentId: config.agentId,
+      agentAliasId: config.agentAliasId,
+      sessionId: `session-${Date.now()}`,
+      inputText: prompt,
+    })
+  );
+
+  let text = "";
+  if (response.completion) {
+    for await (const event of response.completion) {
+      const chunk = event as { chunk?: { bytes?: Uint8Array } };
+      if (chunk.chunk?.bytes) {
+        text += new TextDecoder("utf-8").decode(chunk.chunk.bytes);
+      }
+    }
+  }
+  return parseResultText(text || "{}");
+}
+
+/**
+ * Analyze contract text via Bedrock (no PII). Uses Agent if configured, else Nova/Claude/Titan.
  */
 export async function analyzeContractText(contractText: string): Promise<ContractAnalysisResult> {
   if (!contractText.trim()) {
     return { summary: "No text provided.", redFlags: [], recommendations: [] };
   }
 
-  const { region, modelId } = getConfig();
+  const config = getConfig();
+  if (config.useAgent) {
+    try {
+      return await invokeAgent(contractText, config);
+    } catch (e: unknown) {
+      const err = e as { message?: string };
+      console.error("Bedrock Agent invokeAgent:", e);
+      return {
+        summary: `Agent error: ${err.message ?? String(e)}`,
+        redFlags: [],
+        recommendations: [
+          "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
+          "Ensure the agent has been created and alias 'prod' exists. Test in AWS Console first.",
+        ],
+      };
+    }
+  }
+
+  const { region, modelId } = config;
   const { BedrockRuntimeClient, InvokeModelCommand } = await import("@aws-sdk/client-bedrock-runtime");
   const client = new BedrockRuntimeClient({ region });
   const prompt = `${CONTRACT_ANALYZER_PROMPT}\n\n---\n${contractText.slice(0, 12000)}`;
