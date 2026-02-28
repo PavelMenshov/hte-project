@@ -19,8 +19,11 @@ Open [http://localhost:3000](http://localhost:3000). Adaptive layout: works on m
 |----------|---------|
 | `NEXT_PUBLIC_QDAY_RPC` | QDay testnet RPC (default: https://testnet-rpc-00.qday.info) |
 | `NEXT_PUBLIC_QDAY_CHAIN_ID` | Chain ID for QDay testnet |
-| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | For Bedrock Contract Analyzer |
-| `BEDROCK_MODEL_ID` | Fallback Claude model if agents not configured |
+| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | For Bedrock |
+| **Bedrock Agent (recommended for Contract Analyzer)** | |
+| `BEDROCK_AGENT_ID` | Agent ID from AWS Console → Bedrock → Agents → your agent |
+| `BEDROCK_AGENT_ALIAS_ID` | Alias ID (e.g. alias "prod") — same place in console |
+| `BEDROCK_MODEL_ID` | Used only when Agent is not set; e.g. amazon.nova-lite-v1:0 or Claude with VPN |
 
 ## Abelian / QDay
 
@@ -51,6 +54,6 @@ Open [http://localhost:3000](http://localhost:3000). Adaptive layout: works on m
 
 ## Stack
 
-- **Frontend:** Next.js 16, TypeScript, Tailwind (adaptive).
-- **AI:** AWS Bedrock (InvokeModel); ready for AgentCore.
+- **Frontend:** Next.js 15, TypeScript, Tailwind (adaptive).
+- **AI:** AWS Bedrock AgentCore (InvokeAgent when agent ID set); InvokeModel fallback.
 - **Chain:** QDay (EVM); viem for wallet + contract writes. Contracts: `contracts/Escrow.sol`, `contracts/LegalFund.sol`.

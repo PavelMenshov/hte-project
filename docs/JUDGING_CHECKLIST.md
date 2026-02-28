@@ -44,6 +44,18 @@ Quick reference for judges and for the team before submission.
 
 ---
 
+## Why not existing solutions?
+
+| Solution | What it does | Why TenantShield wins |
+|----------|-------------|----------------------|
+| Squarefoot / Spacious | Lists properties | No contract analysis, no collective power, no anonymity |
+| Google Reviews | Reviews | Not verified by actual tenancy, no anonymity, fear of retaliation |
+| Hiring a lawyer | Legal advice | $500+ per consultation, inaccessible for students |
+| Facebook groups | Community advice | No anonymity, no AI, no structured data |
+| **TenantShield** | All of the above | Anonymous, AI-powered, collective, verified |
+
+---
+
 ## Pre-submission checklist
 
 - [ ] `npm run build` passes.
