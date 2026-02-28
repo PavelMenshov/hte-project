@@ -124,14 +124,20 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
       return await invokeAgent(contractText, config);
     } catch (e: unknown) {
       const err = e as { message?: string };
+      const msg = err.message ?? String(e);
       console.error("Bedrock Agent invokeAgent:", e);
+      const isAnthropicRegion = /Anthropic|unsupported countries|unsupported regions|territories/i.test(msg);
       return {
-        summary: `Agent error: ${err.message ?? String(e)}`,
+        summary: `Agent error: ${msg}`,
         redFlags: [],
-        recommendations: [
-          "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
-          "Ensure the agent has been created and alias 'prod' exists. Test in AWS Console first.",
-        ],
+        recommendations: isAnthropicRegion
+          ? [
+              "Your agent uses Claude, which is not available from your region. Either: use a VPN to a supported country (e.g. US), or in AWS Console → Bedrock → your Agent → Edit: change the model to Amazon Nova, or remove BEDROCK_AGENT_ID from .env.local to use InvokeModel (Nova) instead.",
+            ]
+          : [
+              "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
+              "Ensure the agent has been created and alias exists. Test in AWS Console first.",
+            ],
       };
     }
   }
