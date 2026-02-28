@@ -7,8 +7,10 @@ import type { Property, PropertyStatus } from "@/types/property";
 import type { RVDMarketSnapshot } from "@/lib/rvd-data";
 import PropertyCard from "@/components/PropertyCard";
 import MarketDataBanner from "@/components/MarketDataBanner";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const PROPERTIES = (propertiesData as { properties: Property[] }).properties;
+const PER_PAGE = 12; // 4 rows × 3 columns
 
 type Filter = "all" | PropertyStatus;
 type Sort = "score" | "yield" | "district";
@@ -19,6 +21,7 @@ export default function PropertiesPage() {
   const [marketProperties, setMarketProperties] = useState<Property[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [sort, setSort] = useState<Sort>("score");
+  const [page, setPage] = useState(0);
   const [analyzingId, setAnalyzingId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -48,6 +51,19 @@ export default function PropertiesPage() {
     else list.sort((a, b) => a.district.localeCompare(b.district));
     return list;
   }, [combined, filter, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const currentPage = Math.min(page, totalPages - 1);
+  const paginated = useMemo(
+    () => filtered.slice(currentPage * PER_PAGE, (currentPage + 1) * PER_PAGE),
+    [filtered, currentPage]
+  );
+
+  useEffect(() => {
+    setPage(0);
+  }, [filter, sort]);
+
+  const [cardsContainerRef, listVisible] = useScrollReveal("visible", 0.1);
 
   const handleAnalyze = useCallback(async (property: Property) => {
     if (property.status !== "from_market") return;
@@ -136,17 +152,81 @@ export default function PropertiesPage() {
           </select>
         </div>
 
-        <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((p) => (
-            <li key={p.id}>
-              <PropertyCard
-                property={p}
-                onAnalyze={p.status === "from_market" ? handleAnalyze : undefined}
-                isAnalyzing={analyzingId === p.id}
-              />
-            </li>
-          ))}
-        </ul>
+        <div
+          ref={cardsContainerRef as React.RefObject<HTMLDivElement>}
+          className={marketLoading ? "" : `stagger-reveal visible`}
+        >
+          {marketLoading ? (
+            <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <li key={i}>
+                  <div className="card overflow-hidden p-5">
+                    <div className="skeleton h-5 w-3/4" />
+                    <div className="skeleton mt-2 h-4 w-full" />
+                    <div className="skeleton mt-4 h-2 w-24" />
+                    <div className="skeleton mt-6 h-10 w-full" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <>
+              <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {paginated.map((p) => (
+                  <li key={p.id} className="stagger-item">
+                    <PropertyCard
+                      property={p}
+                      onAnalyze={p.status === "from_market" ? handleAnalyze : undefined}
+                      isAnalyzing={analyzingId === p.id}
+                      animateScore={listVisible}
+                    />
+                  </li>
+                ))}
+              </ul>
+              {totalPages > 1 && (
+                <nav className="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
+                  <span className="w-full text-center text-sm text-[var(--color-muted)] sm:w-auto">
+                    {filtered.length > 0
+                      ? `${currentPage * PER_PAGE + 1}–${Math.min((currentPage + 1) * PER_PAGE, filtered.length)} of ${filtered.length}`
+                      : "0 properties"}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.max(0, p - 1))}
+                      disabled={currentPage === 0}
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      ← Prev
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setPage(i)}
+                        className={`min-w-[2.25rem] rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                          i === currentPage
+                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/20 text-[var(--color-primary)]"
+                            : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                        }`}
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                      disabled={currentPage >= totalPages - 1}
+                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      Next →
+                    </button>
+                  </div>
+                </nav>
+              )}
+            </>
+          )}
+        </div>
 
         <div className="mt-12 w-full border-t border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4 sm:px-6">
           <p className="mx-auto max-w-6xl text-center text-sm text-[var(--color-muted)]">

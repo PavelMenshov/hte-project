@@ -1,7 +1,7 @@
 import type { PropertyStatus } from "@/types/property";
 
 const LABELS: Record<PropertyStatus, string> = {
-  in_portfolio: "✅ IN PORTFOLIO",
+  in_portfolio: "🏠 IN PORTFOLIO",
   analyzing: "🔍 ANALYZING",
   rejected: "❌ REJECTED",
   from_market: "📊 FROM MARKET",
@@ -19,8 +19,9 @@ type Props = { status: PropertyStatus; className?: string };
 export default function StatusBadge({ status, className = "" }: Props) {
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${STYLES[status]} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${STYLES[status]} ${className}`}
     >
+      {status === "in_portfolio" && <span className="pulse-dot" />}
       {LABELS[status]}
     </span>
   );

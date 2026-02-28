@@ -14,12 +14,15 @@ type PurchaseResult = {
   amountHkd: number;
 } | null;
 
+const SECURING_STEPS = ["Initializing...", "Securing on Abelian chain...", "Confirmed ✓"];
+
 export default function InvestPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState<PurchaseResult>(null);
   const [securing, setSecuring] = useState(false);
+  const [securingStep, setSecuringStep] = useState(0);
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
@@ -30,6 +33,20 @@ export default function InvestPage() {
       router.replace("/login?from=/invest");
     }
   }, [mounted, router]);
+
+  useEffect(() => {
+    if (!securing) {
+      setSecuringStep(0);
+      return;
+    }
+    setSecuringStep(0);
+    const t1 = setTimeout(() => setSecuringStep(1), 800);
+    const t2 = setTimeout(() => setSecuringStep(2), 1600);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
+  }, [securing]);
 
   if (!mounted) return null;
 
@@ -101,34 +118,44 @@ export default function InvestPage() {
             </p>
           </div>
 
-          <div className="card border-[var(--color-primary)]/40 p-6">
-            <p className="text-xs text-[var(--color-muted)] mb-3">No wallet needed — full simulation for demo purposes</p>
-            <button
-              type="button"
-              onClick={() => handleSimulate(10000, "quarterly")}
-              disabled={securing}
-              className="w-full rounded-full border-2 border-[var(--color-primary)] bg-transparent py-3 px-6 text-sm font-bold uppercase tracking-wide text-[var(--color-primary)] hover:bg-[var(--color-primary)]/10 transition disabled:opacity-50"
-            >
-              🎮 Simulate Investment — Demo Mode
-            </button>
-          </div>
-
           <PrivacyBlock />
         </div>
 
         {securing && (
           <div className="card mt-8 border-[var(--color-primary)]/30 p-6 text-center">
-            <p className="text-[var(--color-primary)] font-medium">Securing on Abelian chain...</p>
-            <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
-              <div className="h-full w-1/2 animate-pulse rounded-full bg-[var(--color-primary)]" style={{ animation: "pulse 1.5s ease-in-out infinite" }} />
+            <p className="text-[var(--color-primary)] font-medium">{SECURING_STEPS[securingStep]}</p>
+            <div className="mt-4 h-1 rounded-full bg-[var(--color-border)] overflow-hidden">
+              <div
+                className="h-full bg-[var(--color-primary)] transition-all duration-[2500ms] ease-linear rounded-full"
+                style={{ width: securing ? "100%" : "0%" }}
+              />
             </div>
           </div>
         )}
 
         {purchaseResult && !securing && (
-          <div className="card mt-8 border-[var(--color-success)]/30 p-6">
-            <h3 className="font-bold text-[var(--color-success)]">✓ Transaction confirmed</h3>
-            <dl className="mt-4 space-y-2 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+          <div className="card mt-8 border-[var(--color-success)]/30 p-6 animate-fade-in-up relative overflow-hidden">
+            <div className="absolute inset-0 pointer-events-none" aria-hidden>
+              {[...Array(8)].map((_, i) => {
+                const tx = (i % 2 === 0 ? 1 : -1) * (40 + (i * 7) % 40);
+                const ty = -20 - (i * 10) % 60;
+                const colors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)"];
+                return (
+                  <div
+                    key={i}
+                    className="absolute w-2 h-2 rounded-sm left-1/2 top-1/2 -ml-1 -mt-1"
+                    style={{
+                      backgroundColor: colors[i % 3],
+                      animation: "confetti-pop 0.6s ease-out forwards",
+                      ["--tx" as string]: `${tx}px`,
+                      ["--ty" as string]: `${ty}px`,
+                    }}
+                  />
+                );
+              })}
+            </div>
+            <h3 className="font-bold text-[var(--color-success)] relative z-10">✓ Transaction confirmed</h3>
+            <dl className="mt-4 space-y-2 text-sm relative z-10" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
               <div className="flex justify-between">
                 <dt className="text-[var(--color-muted)]">Transaction ID</dt>
                 <dd className="truncate max-w-[200px]" title={purchaseResult.transactionHash}>{purchaseResult.transactionHash}</dd>
@@ -142,7 +169,7 @@ export default function InvestPage() {
                 <dd>HKD {purchaseResult.amountHkd.toLocaleString()}</dd>
               </div>
             </dl>
-            <p className="mt-4 text-xs text-[var(--color-muted)]">
+            <p className="mt-4 text-xs text-[var(--color-muted)] relative z-10">
               Your tokens = a share of the entire Tenantshield portfolio. First payout: next quarter.
             </p>
           </div>

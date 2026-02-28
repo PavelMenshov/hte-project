@@ -75,7 +75,7 @@ export default function LiveAnalysisBlock({ propertyId, onAnalysisComplete }: Pr
   }
 
   return (
-    <div className="card border-[var(--color-secondary)]/30 p-4">
+    <div className="card border-[var(--color-secondary)]/30 p-4 ai-scan-container">
       <div className="flex items-center justify-between gap-4">
         <h4 className="font-semibold text-[var(--color-secondary)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
           Live AI re-analysis
@@ -89,6 +89,14 @@ export default function LiveAnalysisBlock({ propertyId, onAnalysisComplete }: Pr
           {loading ? "Analyzing…" : "Re-analyze live"}
         </button>
       </div>
+      {loading && !text && (
+        <div className="flex gap-1 items-center p-4">
+          <span className="text-[var(--color-muted)] text-sm">AI analyzing</span>
+          <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)] ml-2" />
+          <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+          <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+        </div>
+      )}
       {error && <p className="mt-2 text-sm text-[var(--color-danger)]">{error}</p>}
       {text && (
         <pre className="mt-3 max-h-64 overflow-y-auto whitespace-pre-wrap rounded bg-[var(--color-bg)]/50 p-3 text-sm text-[var(--color-text)]" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
