@@ -26,36 +26,30 @@ const MODULES = [
   { icon: HomeIcon, name: "Sublease Coordinator", desc: "Never pay for an empty room again", badge: "AWS" },
 ] as const;
 
-const MODULE_DETAILS: Record<string, { whatItIs: string; howItWorks: string; tech: string }> = {
+const MODULE_DETAILS: Record<string, { whatItIs: string; tech: string }> = {
   "Contract Analyzer": {
     whatItIs: "AI agent that reads your tenancy agreement and flags illegal clauses, unfair terms, and overpriced rent compared to the HK market.",
-    howItWorks: "Paste or upload your contract → AWS Bedrock Agent analyzes against HK Landlord & Tenant Ordinance → returns structured report with red flags and recommendations in 30 seconds.",
-    tech: "AWS Bedrock AgentCore · Amazon Nova Lite · HK Tenancy Law reference database · No PII sent to cloud",
+    tech: "User pastes or uploads contract → AWS Bedrock AgentCore (Amazon Nova Lite) analyzes against HK Tenancy Law reference database; no PII sent to cloud. Returns structured report with red flags and recommendations in 30 seconds.",
   },
   "Deposit Escrow": {
     whatItIs: "Neutral on-chain escrow that holds your deposit instead of giving it directly to the landlord.",
-    howItWorks: "Student deposits funds into QDay smart contract → landlord receives cryptographic guarantee → upon move-out, contract compares property state and auto-releases deposit. Disputes go to Legal Fund.",
-    tech: "Abelian / QDay EVM · Escrow.sol smart contract · viem for wallet interaction · MetaMask / QDay network",
+    tech: "Student deposits via viem + MetaMask on QDay (Abelian EVM); Escrow.sol holds funds and gives landlord a cryptographic guarantee. On move-out, contract compares property state and auto-releases deposit; disputes go to Legal Fund.",
   },
   "Collective Rent Pool": {
     whatItIs: "Anonymous pool that aggregates student demand and sends bulk rental offers to landlords — giving renters the negotiating power they lack individually.",
-    howItWorks: "Students anonymously submit district + budget → AWS Bedrock Agent aggregates demand → sends collective offer to landlords → students receive 15–25% group discount. Landlord never knows who the individuals are.",
-    tech: "AWS Bedrock AgentCore · CollectiveRentPool.sol · Abelian for anonymization · keccak256 district hashing",
+    tech: "Students submit district + budget (keccak256-hashed via Abelian for anonymization). AWS Bedrock AgentCore aggregates demand and sends collective offer; CollectiveRentPool.sol on-chain. Landlord never sees individuals; students get 15–25% group discount.",
   },
   "Legal Fund": {
     whatItIs: "Collective insurance fund: everyone pays HK$5/month, anyone with a landlord dispute gets a matched lawyer — fully funded by the pool.",
-    howItWorks: "Monthly contributions accumulate in LegalFund.sol → student describes dispute → Bedrock Agent classifies type and urgency → matched to partner lawyer → lawyer paid from fund. Student pays nothing extra.",
-    tech: "AWS Bedrock AgentCore · LegalFund.sol · Abelian for anonymous contributions · QDay testnet",
+    tech: "Monthly contributions go to LegalFund.sol on QDay testnet (Abelian for anonymous contributions). Student describes dispute → Bedrock AgentCore classifies type and urgency → matched to partner lawyer; lawyer paid from fund. Student pays nothing extra.",
   },
   "Anonymous Reviews": {
     whatItIs: "Verified landlord review system where authorship is cryptographically anonymized — so tenants can be honest without fear of eviction or retaliation.",
-    howItWorks: "After tenancy ends, student submits review → Abelian links it to Deposit Pool record (proving they rented) → author identity is stripped → aggregated rating published. Landlord sees score, not names.",
-    tech: "Abelian / QDay · Zero-knowledge proof of tenancy · On-chain review registry · Aggregated rating index",
+    tech: "After tenancy, student submits review; Abelian/QDay links it to Deposit Pool record (zero-knowledge proof of tenancy) then strips author identity. On-chain review registry publishes aggregated rating; landlord sees score, not names.",
   },
   "Sublease Coordinator": {
     whatItIs: "AI matching system for summer sublease: list your room, AI finds a verified subtenant, smart contract handles all payments automatically.",
-    howItWorks: "Student lists room with dates + price → AWS Bedrock Agent matches with students looking for short-term housing → QDay contract splits rent: landlord gets full amount, original tenant gets refund. No cash, no trust required.",
-    tech: "AWS Bedrock AgentCore · QDay payment split contract · Abelian anonymization · Automated rent distribution",
+    tech: "Student lists room (dates + price); AWS Bedrock AgentCore matches with short-term seekers. QDay payment-split contract + Abelian anonymization: landlord gets full rent, original tenant gets refund; automated rent distribution, no cash or trust required.",
   },
 };
 
@@ -64,12 +58,6 @@ const QUOTES = [
   "Landlord kept my deposit. I was afraid to complain",
   "Paid $8000 for an empty room all summer",
   "Couldn't afford a lawyer. Lost the dispute.",
-] as const;
-
-const BARS = [
-  { label: "International students", pct: 78 },
-  { label: "Local students", pct: 54 },
-  { label: "Young professionals", pct: 61 },
 ] as const;
 
 const AWARDS = [
@@ -84,10 +72,8 @@ const row2 = MODULES.slice(3, 6);
 
 export default function PitchPage() {
   const slideRefs = useRef<(HTMLElement | null)[]>([]);
-  const barsRef = useRef<HTMLDivElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [currentSlide, setCurrentSlide] = useState(1);
-  const [barsVisible, setBarsVisible] = useState(false);
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   useEffect(() => {
@@ -113,19 +99,6 @@ export default function PitchPage() {
       observers.push(observer);
     });
     return () => observers.forEach((o) => o.disconnect());
-  }, []);
-
-  useEffect(() => {
-    const el = barsRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) setBarsVisible(true);
-      },
-      { threshold: 0.2 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
@@ -270,14 +243,10 @@ export default function PitchPage() {
                   className="rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-surface)] p-6"
                   style={{ animation: "fadeInDown 0.25s ease forwards" }}
                 >
-                  <div className="grid gap-6 md:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2">
                     <div>
                       <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>WHAT IT IS</p>
                       <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.whatItIs}</p>
-                    </div>
-                    <div>
-                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>HOW IT WORKS</p>
-                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.howItWorks}</p>
                     </div>
                     <div>
                       <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>TECH</p>
@@ -321,14 +290,10 @@ export default function PitchPage() {
                   className="rounded-xl border border-[var(--color-primary)]/40 bg-[var(--color-surface)] p-6"
                   style={{ animation: "fadeInDown 0.25s ease forwards" }}
                 >
-                  <div className="grid gap-6 md:grid-cols-3">
+                  <div className="grid gap-6 md:grid-cols-2">
                     <div>
                       <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>WHAT IT IS</p>
                       <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.whatItIs}</p>
-                    </div>
-                    <div>
-                      <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>HOW IT WORKS</p>
-                      <p className="text-sm leading-relaxed text-[var(--color-muted)]">{d.howItWorks}</p>
                     </div>
                     <div>
                       <p className="mb-2 font-mono text-xs uppercase tracking-wider text-[var(--color-primary)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>TECH</p>
@@ -380,8 +345,8 @@ export default function PitchPage() {
         <h2 className="text-center text-3xl font-bold text-white md:text-4xl" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
           Privacy by design.
         </h2>
-        <div className="mt-12 flex w-full max-w-5xl flex-col items-stretch gap-8 lg:flex-row lg:items-center lg:gap-4">
-          <div className="card flex-1 rounded-xl p-6 text-center">
+        <div className="mt-12 flex w-full max-w-5xl flex-col items-stretch gap-8 lg:flex-row lg:items-stretch lg:gap-4">
+          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl p-6 text-center">
             <User className="mx-auto h-10 w-10 text-[var(--color-muted)]" />
             <h3 className="mt-3 font-bold text-white">Student</h3>
             <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
@@ -390,41 +355,37 @@ export default function PitchPage() {
               <li>Pays $5 to fund</li>
             </ul>
           </div>
-          <div className="flex flex-col items-center gap-1 lg:flex-row lg:flex-1">
+          <div className="flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-1 lg:min-w-0">
             <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-12 lg:flex-1" />
             <p className="text-xs text-[var(--color-muted)]">encrypted</p>
-            <svg className="h-6 w-12 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
-          <div className="card flex-1 rounded-xl border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 p-6 text-center">
+          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 p-6 text-center">
             <Lock className="mx-auto h-10 w-10 text-[var(--color-secondary)]" />
             <h3 className="mt-3 font-bold text-white">Abelian Layer</h3>
-            <p className="mt-3 text-sm text-[var(--color-muted)]">
-              Anonymizes identity
-              <br />
-              Holds deposits
-              <br />
-              Verifies without revealing
-            </p>
+            <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
+              <li>Anonymizes identity</li>
+              <li>Holds deposits</li>
+              <li>Verifies without revealing</li>
+            </ul>
           </div>
-          <div className="flex flex-col items-center gap-1 lg:flex-row lg:flex-1">
+          <div className="relative flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-1 lg:min-w-0">
             <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-12 lg:flex-1" />
-            <p className="text-xs text-[var(--color-muted)]">anonymized data only</p>
-            <svg className="h-6 w-12 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+            <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
               <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
+            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 whitespace-nowrap rounded bg-[var(--color-bg)] px-1.5 text-xs text-[var(--color-muted)] lg:px-2">anonymized data only</span>
           </div>
-          <div className="card flex-1 rounded-xl border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-6 text-center">
+          <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl border-[var(--color-primary)]/30 bg-[var(--color-primary)]/5 p-6 text-center">
             <Cpu className="mx-auto h-10 w-10 text-[var(--color-primary)]" />
             <h3 className="mt-3 font-bold text-white">AWS Bedrock Agent</h3>
-            <p className="mt-3 text-sm text-[var(--color-muted)]">
-              Analyzes contracts
-              <br />
-              Matches rent pools
-              <br />
-              Classifies disputes
-            </p>
+            <ul className="mt-3 list-inside list-disc text-left text-sm text-[var(--color-muted)]">
+              <li>Analyzes contracts</li>
+              <li>Matches rent pools</li>
+              <li>Classifies disputes</li>
+            </ul>
           </div>
         </div>
         <p className="mt-10 max-w-2xl text-center text-sm text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
@@ -446,44 +407,21 @@ export default function PitchPage() {
             <p className="mt-1 text-sm text-[var(--color-muted)]">HK rental market annually</p>
           </div>
           <div className="card p-6 text-center">
-            <p className="text-2xl font-bold text-[var(--color-primary)] md:text-3xl">120,000+</p>
+            <p className="text-2xl font-bold text-[var(--color-primary)] md:text-3xl">37,100</p>
             <p className="mt-1 text-sm text-[var(--color-muted)]">international students in HK</p>
           </div>
           <div className="card p-6 text-center">
-            <p className="text-2xl font-bold text-[var(--color-primary)] md:text-3xl">$5.4T</p>
-            <p className="mt-1 text-sm text-[var(--color-muted)]">global fractional real estate by 2030</p>
+            <p className="text-2xl font-bold text-[var(--color-primary)] md:text-3xl">$16T</p>
+            <p className="mt-1 text-sm text-[var(--color-muted)]">tokenized real estate by 2030</p>
           </div>
         </div>
-        <div ref={barsRef} className="mt-14 w-full max-w-2xl">
-          <h3 className="mb-4 text-lg font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-            Who suffers most from landlord disputes?
-          </h3>
-          <div className="space-y-4">
-            {BARS.map((b) => (
-              <div key={b.label}>
-                <div className="mb-1 flex justify-between text-sm">
-                  <span className="text-[var(--color-text)]">{b.label}</span>
-                  <span className="text-[var(--color-muted)]">{b.pct}%</span>
-                </div>
-                <div className="h-6 overflow-hidden rounded bg-[var(--color-border)]">
-                  <div
-                    className="h-full rounded bg-[var(--color-primary)] transition-[width] duration-1000 ease-out"
-                    style={{ width: barsVisible ? `${b.pct}%` : "0%" }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-          <p className="mt-6 text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
-            Sources:{" "}
-            <a href="https://www.consumer.org.hk/en/annual-report/2024" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">Consumer Council 2023-24</a>
-            {" "}(accommodation complaints +219%);{" "}
-            <a href="https://clic.org.hk/en/topics/landlord_tenant/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">CLIC</a>
-            {" "}(tenant rights);{" "}
-            <a href="https://www.chinadailyhk.com/hk/article/618300" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">China Daily HK</a>
-            {" "}(deposit disputes, students vulnerable). Chart proportions illustrative.
-          </p>
-        </div>
+        <p className="mt-8 max-w-2xl text-center text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
+          Sources:{" "}
+          <a href="https://www.scmp.com/news/hong-kong/education/article/3325906/policy-address-2025-hong-kong-add-more-foreign-students-dse-schools" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">SCMP</a>
+          {" "}(international students);{" "}
+          <a href="https://www.binance.com/en/square/post/30377925067034" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">Binance</a>
+          {" "}(tokenized real estate $16T by 2030).
+        </p>
       </section>
 
       {/* Slide 7 — Track coverage */}
