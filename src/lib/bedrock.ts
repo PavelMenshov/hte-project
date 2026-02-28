@@ -79,9 +79,18 @@ function extractText(decoded: Record<string, unknown>, kind: "nova" | "titan"): 
 /**
  * Invoke Bedrock Agent (TenantShield-ContractAnalyzer) and return parsed result.
  */
+function getAgentDebugInfo(config: ReturnType<typeof getConfig>): string {
+  const a = config.agentId;
+  const b = config.agentAliasId;
+  return `region=${config.region} agentId=${a ? `${a.slice(0, 4)}...${a.slice(-4)}` : "(empty)"} agentAliasId=${b ? `${b.slice(0, 6)}...` : "(empty)"}`;
+}
+
 async function invokeAgent(contractText: string, config: ReturnType<typeof getConfig>): Promise<ContractAnalysisResult> {
   const { BedrockAgentRuntimeClient, InvokeAgentCommand } = await import("@aws-sdk/client-bedrock-agent-runtime");
   const client = new BedrockAgentRuntimeClient({ region: config.region });
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[Bedrock Agent] Invoking:", getAgentDebugInfo(config));
+  }
   const prompt = `Analyze this tenancy agreement and output structured JSON (red_flags[], illegal_clauses[], market_comparison{}, recommendations[]).\n\n---\n${contractText.slice(0, 12000)}`;
 
   const response = await client.send(
@@ -118,15 +127,25 @@ export async function analyzeContractText(contractText: string): Promise<Contrac
     try {
       return await invokeAgent(contractText, config);
     } catch (e: unknown) {
-      const err = e as { message?: string };
+      const err = e as { name?: string; message?: string; $metadata?: { requestId?: string; httpStatusCode?: number } };
       const msg = err.message ?? String(e);
-      console.error("Bedrock Agent invokeAgent:", e);
+      const requestId = err.$metadata?.requestId ?? "";
+      const code = err.$metadata?.httpStatusCode ?? "";
+      console.error("[Bedrock Agent] invokeAgent failed:", {
+        name: err.name,
+        message: msg,
+        requestId,
+        httpStatusCode: code,
+        config: getAgentDebugInfo(config),
+      });
       return {
-        summary: `Agent error: ${msg}`,
+        summary: `Agent error: ${msg}${requestId ? ` (RequestId: ${requestId})` : ""}`,
         redFlags: [],
         recommendations: [
-          "Check BEDROCK_AGENT_ID and BEDROCK_AGENT_ALIAS_ID in .env.local (from AWS Console → Bedrock → Agents → your agent → Alias).",
-          "Ensure the agent uses Amazon Nova (e.g. amazon.nova-lite-v1:0). Test in AWS Console first.",
+          "Проверь .env.local: BEDROCK_AGENT_ID и BEDROCK_AGENT_ALIAS_ID (без кавычек, без пробелов). Перезапусти npm run dev после изменений.",
+          "В AWS Console: Bedrock → Agents → твой агент → Prepare agent (если не Prepared). В разделе Aliases скопируй Alias ID (не Agent ID).",
+          "Регион: AWS_REGION должен совпадать с регионом, где создан агент (например us-east-1).",
+          "В агенте в качестве модели должна быть Amazon Nova (e.g. amazon.nova-lite-v1:0). Проверь в Edit agent → Model.",
         ],
       };
     }
