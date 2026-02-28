@@ -48,6 +48,23 @@ Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in
 | `BEDROCK_AGENT_ALIAS_ID` | Alias ID (e.g. alias "prod") — same place in console |
 | `BEDROCK_MODEL_ID` | Used only when Agent is not set; e.g. amazon.nova-lite-v1:0 |
 
+### Отладка Bedrock Agent
+
+Если Contract Analyzer с агентом не работает:
+
+1. **Терминал** — при нажатии "Analyze" в консоли, где запущен `npm run dev`, появляется строка `[Bedrock Agent] Invoking: region=... agentId=... agentAliasId=...`. По ней проверь, что регион и ID подставляются (не пустые).
+2. **Текст ошибки на странице** — в отчёте показывается полное сообщение от AWS и RequestId. По RequestId можно искать в CloudWatch или в поддержке AWS.
+3. **Чек-лист в консоли AWS:**
+   - Bedrock → Agents → выбран нужный агент.
+   - У агента в **Edit** в качестве модели указана **Amazon Nova** (например amazon.nova-lite-v1:0).
+   - **Prepare agent** выполнен (статус Prepared). После изменений — снова Prepare.
+   - Вкладка **Aliases**: скопируй **Alias ID** (длинный строковый ID, не "Test alias" по имени). В .env.local должен быть именно он в `BEDROCK_AGENT_ALIAS_ID`.
+   - `BEDROCK_AGENT_ID` — это **Agent ID** (на странице агента вверху), не Alias ID.
+4. **Регион** — `AWS_REGION` в .env.local должен совпадать с регионом, где создан агент (например `us-east-1`).
+5. **Права IAM** — у пользователя/роли, чьи ключи в .env.local, должно быть разрешение `bedrock:InvokeAgent` (и доступ к Bedrock Agents в этом регионе).
+
+Временно можно отключить агента: закомментируй `BEDROCK_AGENT_ID` и `BEDROCK_AGENT_ALIAS_ID` в .env.local — тогда будет использоваться прямой InvokeModel с `BEDROCK_MODEL_ID=amazon.nova-lite-v1:0`.
+
 ## Abelian / QDay
 
 - **Must** for Abelian Foundation Privacy & AI Award: all on-chain flows use QDay.
