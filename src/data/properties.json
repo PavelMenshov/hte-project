@@ -1,0 +1,133 @@
+{
+  "properties": [
+    {
+      "id": "kwun-tong-floor-7",
+      "name": "Kwun Tong Industrial Conversion Floor 7",
+      "address": "47 Hoi Yuen Road, Kwun Tong",
+      "district": "Kwun Tong",
+      "type": "co-living floor",
+      "status": "in_portfolio",
+      "acquired_date": "2025-09-12",
+      "acquired_price_hkd": 8200000,
+      "current_valuation_hkd": 8750000,
+      "rooms": 12,
+      "size_sqft": 2800,
+      "monthly_rent_hkd": 82000,
+      "gross_yield_pct": 5.9,
+      "net_yield_pct": 4.8,
+      "ai_score": 8.7,
+      "ai_recommendation": "BUY",
+      "ai_growth_forecast_pct": 6.2,
+      "risk_level": "LOW",
+      "ai_buy_reasons": [
+        "MTR Kwun Tong 4 min walk",
+        "12 rooms — optimal co-living density",
+        "Acquired 6.5% below comparable market price"
+      ],
+      "ai_concerns": ["Industrial-to-residential conversion — verify licensing"],
+      "ai_rejected_alternatives": [
+        {"description": "Ngau Tau Kok unit, 6 rooms", "reason": "yield 4.2% — below threshold"},
+        {"description": "Lam Tin studio cluster", "reason": "Acquisition price 12% above market"}
+      ],
+      "tenants_current": 11,
+      "tenants_max": 12,
+      "images": ["/properties/kwun-tong-1.jpg"],
+      "features": ["MTR 4 min", "12 rooms", "97% occupied"]
+    },
+    {
+      "id": "mong-kok-studio-block",
+      "name": "Mong Kok Studio Block",
+      "address": "88 Portland Street, Mong Kok",
+      "district": "Mong Kok",
+      "type": "studio cluster",
+      "status": "in_portfolio",
+      "acquired_date": "2025-11-03",
+      "acquired_price_hkd": 11500000,
+      "current_valuation_hkd": 12100000,
+      "rooms": 8,
+      "size_sqft": 3200,
+      "monthly_rent_hkd": 96000,
+      "gross_yield_pct": 5.8,
+      "net_yield_pct": 4.6,
+      "ai_score": 8.4,
+      "ai_recommendation": "BUY",
+      "ai_growth_forecast_pct": 7.1,
+      "risk_level": "LOW",
+      "ai_buy_reasons": [
+        "Mong Kok — highest student foot traffic in HK",
+        "Premium location drives 15% rent premium",
+        "Below replacement cost acquisition"
+      ],
+      "ai_concerns": ["Noise levels may increase tenant turnover"],
+      "ai_rejected_alternatives": [
+        {"description": "Sham Shui Po block", "reason": "Lower rent ceiling, more competition"}
+      ],
+      "tenants_current": 8,
+      "tenants_max": 8,
+      "images": ["/properties/mong-kok-1.jpg"],
+      "features": ["Premium location", "100% occupied", "High demand"]
+    },
+    {
+      "id": "sha-tin-new-town",
+      "name": "Sha Tin New Town Plaza Adjacent",
+      "address": "22 Yuen Wo Road, Sha Tin",
+      "district": "Sha Tin",
+      "type": "co-living floor",
+      "status": "analyzing",
+      "acquired_date": null,
+      "acquired_price_hkd": null,
+      "current_valuation_hkd": 6300000,
+      "rooms": 8,
+      "size_sqft": 2100,
+      "monthly_rent_hkd": 58000,
+      "gross_yield_pct": 5.7,
+      "net_yield_pct": 4.2,
+      "ai_score": 7.8,
+      "ai_recommendation": "HOLD",
+      "ai_growth_forecast_pct": 5.4,
+      "risk_level": "MEDIUM",
+      "ai_buy_reasons": [
+        "Sha Tin MTR 3 min walk",
+        "Adjacent to New Town Plaza — high footfall",
+        "8 rooms maximises co-living density"
+      ],
+      "ai_concerns": ["Seller asking 8% above recent comparable sales — negotiation required"],
+      "ai_rejected_alternatives": [],
+      "tenants_current": 0,
+      "tenants_max": 8,
+      "images": ["/properties/sha-tin-1.jpg"],
+      "features": ["MTR 3 min", "Shopping mall adjacent", "Under evaluation"]
+    },
+    {
+      "id": "tuen-mun-gateway",
+      "name": "Tuen Mun Gateway Block C",
+      "address": "Tuen Mun Town Centre",
+      "district": "Tuen Mun",
+      "type": "multi-studio",
+      "status": "rejected",
+      "acquired_date": null,
+      "acquired_price_hkd": null,
+      "current_valuation_hkd": null,
+      "rooms": 4,
+      "size_sqft": 1100,
+      "monthly_rent_hkd": 26000,
+      "gross_yield_pct": 5.7,
+      "net_yield_pct": 3.9,
+      "ai_score": 5.2,
+      "ai_recommendation": "REJECT",
+      "ai_growth_forecast_pct": 3.1,
+      "risk_level": "HIGH",
+      "ai_buy_reasons": ["LRT station nearby"],
+      "ai_concerns": [
+        "Only 4 rooms — insufficient density for co-living model",
+        "Seller asking 11% above market — not negotiable",
+        "Long commute to university clusters"
+      ],
+      "ai_rejected_alternatives": [],
+      "tenants_current": 0,
+      "tenants_max": 4,
+      "images": ["/properties/tuen-mun-1.jpg"],
+      "features": ["Rejected by AI", "Insufficient scale"]
+    }
+  ]
+}

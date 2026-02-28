@@ -6,12 +6,11 @@ import { useRouter } from "next/navigation";
 import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 
 const NAV_LINKS = [
-  { href: "/contract", label: "Contract" },
-  { href: "/deposit", label: "Deposit" },
-  { href: "/collective", label: "Collective" },
-  { href: "/legal", label: "Legal Fund" },
-  { href: "/reviews", label: "Reviews" },
-  { href: "/sublease", label: "Sublease" },
+  { href: "/", label: "Home" },
+  { href: "/properties", label: "Properties" },
+  { href: "/invest", label: "Invest" },
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/about", label: "About" },
   { href: "/pitch", label: "Pitch" },
 ] as const;
 
@@ -50,7 +49,7 @@ export default function NavHeader() {
           className="font-bold tracking-tight text-[var(--color-primary)]"
           style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
         >
-          TENANT//SHIELD
+          TENANTSHIELD
         </Link>
         <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
           {NAV_LINKS.map(({ href, label }) => (

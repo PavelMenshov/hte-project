@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "share": "npx ngrok http 3000"
+    "share": "npx ngrok http 3000",
+    "prefetch": "tsx scripts/prefetch-cache.ts"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock-agent-runtime": "^3.1000.0",
@@ -15,6 +16,8 @@
     "bcryptjs": "^3.0.3",
     "lucide-react": "^0.575.0",
     "next": "16.1.6",
+    "node-cron": "^4.2.1",
+    "playwright": "^1.58.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "viem": "^2.46.3"
@@ -28,6 +31,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }

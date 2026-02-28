@@ -16,8 +16,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "TenantShield — Collective tenant protection in Hong Kong",
-  description: "Privacy-first platform for students: contract analysis, escrow deposits, collective rent pool on Abelian/QDay + AWS Bedrock AI.",
+  title: "Tenantshield — Own Hong Kong Real Estate From HKD 1,000",
+  description: "AI finds the best properties. We buy them. You earn. Invest in Tenantshield tokens — 90% of rental income, quantum-private on Abelian QDay.",
 };
 
 export const viewport = {
