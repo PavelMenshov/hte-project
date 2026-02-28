@@ -22,6 +22,20 @@ To expose the app to the internet (e.g. for demos or sharing with judges):
 
 Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in a browser or share the link. The first time you may need to accept the ngrok cookie banner when visiting the URL.
 
+**Использовать свой аккаунт ngrok (или сменить токен):**
+
+1. Зайди на [dashboard.ngrok.com](https://dashboard.ngrok.com) и залогинься (или зарегистрируйся).
+2. В разделе **Your Authtoken** скопируй токен.
+3. В терминале выполни один раз:
+   ```bash
+   npx ngrok config add-authtoken ВСТАВЬ_СЮДА_ТОКЕН
+   ```
+   Это сохранит токен в конфиг ngrok; дальше `npm run share` будет использовать твой аккаунт.
+
+   Либо можно не сохранять в конфиг, а передавать токен через переменную окружения перед запуском:
+   - Windows (PowerShell): `$env:NGROK_AUTHTOKEN="твой_токен"; npm run share`
+   - Mac/Linux: `NGROK_AUTHTOKEN=твой_токен npm run share`
+
 ## Environment
 
 | Variable | Purpose |
