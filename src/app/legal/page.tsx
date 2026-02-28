@@ -1,18 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { addQDayToWallet, connectWallet, txUrl } from "@/lib/abelian";
 import { isLegalFundDeployed, getConnectedAddress, legalFundContribute } from "@/lib/wallet";
+import { getSession, type AuthUser } from "@/lib/auth";
 
 const DEMO_TX = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const CONTRIBUTION_WEI = BigInt(1e15); // 0.001 QDAY for demo
 
 export default function LegalPage() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
   const [address, setAddress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [txHash, setTxHash] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fundDeployed = isLegalFundDeployed();
+
+  useEffect(() => {
+    const session = getSession();
+    setUser(session);
+    setAuthChecked(true);
+    if (!session) router.push("/login");
+  }, [router]);
 
   async function handleConnect() {
     setError(null);
@@ -31,6 +43,9 @@ export default function LegalPage() {
   useEffect(() => {
     getConnectedAddress().then(setAddress);
   }, []);
+
+  if (!authChecked) return null;
+  if (!user) return null;
 
   async function handleContribute() {
     setError(null);

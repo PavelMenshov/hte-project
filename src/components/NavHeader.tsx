@@ -2,6 +2,8 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 
 const NAV_LINKS = [
   { href: "/contract", label: "Contract" },
@@ -15,7 +17,13 @@ const NAV_LINKS = [
 
 export default function NavHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    setUser(getSession());
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -26,6 +34,13 @@ export default function NavHeader() {
     document.addEventListener("click", handleClickOutside);
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
+
+  function handleLogout() {
+    clearSession();
+    setUser(null);
+    setMenuOpen(false);
+    router.push("/login");
+  }
 
   return (
     <header ref={headerRef} className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-md">
@@ -47,6 +62,35 @@ export default function NavHeader() {
               {label}
             </Link>
           ))}
+          {user == null ? (
+            <>
+              <Link
+                href="/login"
+                className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-primary)]"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="btn-primary rounded-full px-4 py-2 text-sm"
+              >
+                Register
+              </Link>
+            </>
+          ) : (
+            <>
+              <span className="text-sm text-[var(--color-muted)]">
+                Hi, {user.name.split(" ")[0]}
+              </span>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-danger)]"
+              >
+                Logout
+              </button>
+            </>
+          )}
         </nav>
         <button
           type="button"
@@ -78,6 +122,39 @@ export default function NavHeader() {
               {label}
             </Link>
           ))}
+          <div className="border-t border-[var(--color-border)] pt-3 mt-1 flex flex-col gap-2">
+            {user == null ? (
+              <>
+                <Link
+                  href="/login"
+                  onClick={() => setMenuOpen(false)}
+                  className="block py-2 px-3 rounded-lg text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition"
+                >
+                  Sign in
+                </Link>
+                <Link
+                  href="/register"
+                  onClick={() => setMenuOpen(false)}
+                  className="btn-primary rounded-full px-4 py-2 text-sm text-center"
+                >
+                  Register
+                </Link>
+              </>
+            ) : (
+              <>
+                <span className="block py-2 px-3 text-sm text-[var(--color-muted)]">
+                  Hi, {user.name.split(" ")[0]}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="block w-full py-2 px-3 rounded-lg text-left text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-danger)] hover:bg-[var(--color-danger)]/5 transition"
+                >
+                  Logout
+                </button>
+              </>
+            )}
+          </div>
         </div>
       )}
     </header>

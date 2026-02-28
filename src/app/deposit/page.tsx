@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Shield, Lock, Send, Home, CheckCircle } from "lucide-react";
 import { addQDayToWallet, connectWallet, txUrl } from "@/lib/abelian";
 import { isEscrowDeployed, getConnectedAddress, escrowDeposit } from "@/lib/wallet";
+import { getSession, type AuthUser } from "@/lib/auth";
 
 const DEMO_TX = "0x0000000000000000000000000000000000000000000000000000000000000000";
 
@@ -15,6 +17,9 @@ const STEPS = [
 ] as const;
 
 export default function DepositPage() {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const router = useRouter();
   const [address, setAddress] = useState<string | null>(null);
   const [landlord, setLandlord] = useState("");
   const [amount, setAmount] = useState("0.001");
@@ -22,6 +27,13 @@ export default function DepositPage() {
   const [txHash, setTxHash] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const escrowDeployed = isEscrowDeployed();
+
+  useEffect(() => {
+    const session = getSession();
+    setUser(session);
+    setAuthChecked(true);
+    if (!session) router.push("/login");
+  }, [router]);
 
   async function handleConnect() {
     setError(null);
@@ -40,6 +52,9 @@ export default function DepositPage() {
   useEffect(() => {
     getConnectedAddress().then(setAddress);
   }, []);
+
+  if (!authChecked) return null;
+  if (!user) return null;
 
   async function handleDeposit() {
     setError(null);
