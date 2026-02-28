@@ -183,9 +183,15 @@ export default function RentalPage() {
             return (
               <div key={p.id} className="card card-hover overflow-hidden p-6 stagger-item">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="rounded-full bg-[var(--color-success)]/20 px-3 py-1 text-xs font-semibold text-[var(--color-success)] border border-[var(--color-success)]/40">
-                    🏠 NOW RENTING
-                  </span>
+                  {available === 0 ? (
+                    <span className="rounded-full bg-yellow-500/20 px-3 py-1 text-xs font-semibold text-yellow-500 border border-yellow-500/40">
+                      🏠 Full - Waitlist Available
+                    </span>
+                  ) : (
+                    <span className="rounded-full bg-[var(--color-success)]/20 px-3 py-1 text-xs font-semibold text-[var(--color-success)] border border-[var(--color-success)]/40">
+                      🏠 NOW RENTING
+                    </span>
+                  )}
                 </div>
                 <h2
                   className="mt-4 text-xl font-bold text-white"
