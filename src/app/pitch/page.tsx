@@ -351,7 +351,13 @@ export default function PitchPage() {
             ))}
           </div>
           <p className="mt-6 text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
-            Source: HK Tenants Rights Association survey 2024 (mock data for demo)
+            Sources:{" "}
+            <a href="https://www.consumer.org.hk/en/annual-report/2024" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">Consumer Council 2023-24</a>
+            {" "}(accommodation complaints +219%);{" "}
+            <a href="https://clic.org.hk/en/topics/landlord_tenant/" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">CLIC</a>
+            {" "}(tenant rights);{" "}
+            <a href="https://www.chinadailyhk.com/hk/article/618300" target="_blank" rel="noopener noreferrer" className="text-[var(--color-primary)] hover:underline">China Daily HK</a>
+            {" "}(deposit disputes, students vulnerable). Chart proportions illustrative.
           </p>
         </div>
       </section>
@@ -404,7 +410,7 @@ export default function PitchPage() {
           github.com/PavelMenshov/hte-project
         </a>
         <p className="mt-6 text-center text-xs text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
-          Built in 36 hours at HTE Hackathon · Hong Kong · 2026
+          Built in 24 hours at HTE Hackathon · Hong Kong · 2026
         </p>
         <Link href="/" className="btn-primary mt-10 rounded-full px-10 py-4 text-base md:text-lg" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
           TRY THE DEMO →
