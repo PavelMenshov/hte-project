@@ -1,102 +1,164 @@
 import Link from "next/link";
+import {
+  FileSearch,
+  Shield,
+  Users,
+  Scale,
+  Star,
+  Home as HomeIcon,
+} from "lucide-react";
 
 const MODULES = [
-  { id: "contract", title: "Contract Analyzer", short: "AI checks your lease for illegal clauses (HK law). No PII to the cloud.", href: "/contract", icon: "📄" },
-  { id: "deposit", title: "Deposit Pool", short: "Escrow on QDay. Landlord sees guarantee, not your identity.", href: "/deposit", icon: "🔒" },
-  { id: "pool", title: "Collective Rent Pool", short: "Anonymous group requests → 15–25% discount. Powered by AI + Abelian.", href: "/collective", icon: "👥" },
-  { id: "legal", title: "Legal Fund", short: "HK$5/month into shared fund. Disputes → matched lawyer from fund.", href: "/legal", icon: "⚖️" },
-  { id: "reviews", title: "Anonymous Reviews", short: "Verified tenant reviews. Author anonymized on-chain.", href: "/reviews", icon: "⭐" },
-  { id: "sublease", title: "Sublease Coordinator", short: "Summer away? AI finds temp tenant; payments split on-chain.", href: "/sublease", icon: "🔄" },
+  {
+    id: "contract",
+    title: "Contract Analyzer",
+    short: "AI checks your lease for illegal clauses (HK law). No PII to the cloud.",
+    href: "/contract",
+    icon: FileSearch,
+  },
+  {
+    id: "deposit",
+    title: "Deposit Pool",
+    short: "Escrow on QDay. Landlord sees guarantee, not your identity.",
+    href: "/deposit",
+    icon: Shield,
+  },
+  {
+    id: "pool",
+    title: "Collective Rent Pool",
+    short: "Anonymous group requests → 15–25% discount. Powered by AI + Abelian.",
+    href: "/collective",
+    icon: Users,
+  },
+  {
+    id: "legal",
+    title: "Legal Fund",
+    short: "HK$5/month into shared fund. Disputes → matched lawyer from fund.",
+    href: "/legal",
+    icon: Scale,
+  },
+  {
+    id: "reviews",
+    title: "Anonymous Reviews",
+    short: "Verified tenant reviews. Author anonymized on-chain.",
+    href: "/reviews",
+    icon: Star,
+  },
+  {
+    id: "sublease",
+    title: "Sublease Coordinator",
+    short: "Summer away? AI finds temp tenant; payments split on-chain.",
+    href: "/sublease",
+    icon: HomeIcon,
+  },
+] as const;
+
+const STATS = [
+  { value: "500+", label: "Students Protected" },
+  { value: "HKD 2.3M", label: "Deposits Secured" },
+  { value: "94%", label: "Win Rate in Disputes" },
 ] as const;
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900">
-      <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-bold tracking-tight text-slate-900">
-            <span className="text-2xl" aria-hidden>🛡️</span>
-            <span className="text-xl">TenantShield</span>
-          </Link>
-          <nav className="flex items-center gap-4 sm:gap-6">
-            <Link href="/#modules" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
-              Modules
-            </Link>
-            <Link href="/collective" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
-              Collective
-            </Link>
-            <Link href="/pitch" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
-              Pitch
-            </Link>
-            <Link
-              href="/contract"
-              className="rounded-full bg-[#2563eb] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#1d4ed8]"
-            >
-              Try demo
-            </Link>
-          </nav>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 pb-20 sm:px-6">
-        <section className="py-20 sm:py-28 md:py-36">
-          <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-[#2563eb]">
-            Collective tenant protection · Hong Kong
-          </p>
-          <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-5xl md:text-6xl">
-            Your data stays yours.{" "}
-            <span className="text-[#2563eb]">AI helps without knowing who you are.</span>
+    <div className="min-h-screen text-[var(--color-text)]">
+      {/* Hero — full viewport height */}
+      <section className="hero-grid relative flex min-h-[100dvh] flex-col justify-center px-4 pb-20 pt-8 sm:px-6">
+        <div className="mx-auto max-w-5xl">
+          <h1
+            className="whitespace-pre-line text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Your Rights.{"\n"}Collectively Protected.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg text-slate-600">
-            Students get contract checks, escrow deposits, and group bargaining power—on
-            Abelian&apos;s quantum-resistant chain. Landlords see guarantees and ratings, not identities.
+          <p className="mt-6 max-w-xl text-base text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
+            AI-powered tenant protection for Hong Kong students
           </p>
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               href="/contract"
-              className="inline-flex rounded-full bg-[#2563eb] px-6 py-3.5 font-semibold text-white transition hover:bg-[#1d4ed8]"
+              className="btn-primary inline-flex rounded-full px-8 py-4 text-sm"
             >
-              Analyze a contract
+              Analyze My Contract
             </Link>
             <Link
-              href="/deposit"
-              className="inline-flex rounded-full border-2 border-slate-300 bg-white px-6 py-3.5 font-semibold text-slate-800 transition hover:border-[#2563eb] hover:text-[#2563eb]"
+              href="/collective"
+              className="inline-flex rounded-full border-2 border-[var(--color-border)] bg-transparent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-[var(--color-text)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
             >
-              Deposit escrow (QDay)
+              Join Rent Pool
             </Link>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section id="modules" className="scroll-mt-8 py-12">
-          <h2 className="mb-8 text-3xl font-bold text-slate-900">Six modules</h2>
-          <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {MODULES.map((m) => (
-              <li key={m.id}>
-                <Link
-                  href={m.href}
-                  className="block rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:border-[#2563eb]/40 hover:shadow-md"
-                >
-                  <span className="text-3xl" aria-hidden>{m.icon}</span>
-                  <h3 className="mt-4 font-bold text-slate-900">{m.title}</h3>
-                  <p className="mt-2 text-sm text-slate-600">{m.short}</p>
-                </Link>
-              </li>
-            ))}
+      {/* Stats row */}
+      <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]/50 py-12">
+        <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-12 px-4 sm:px-6">
+          {STATS.map(({ value, label }) => (
+            <div key={label} className="text-center">
+              <div className="text-3xl font-bold text-[var(--color-primary)] sm:text-4xl" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                {value}
+              </div>
+              <div className="mt-1 text-sm text-[var(--color-muted)]">{label}</div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Module cards — 2x3 grid */}
+      <section id="modules" className="scroll-mt-8 py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <h2
+            className="section-heading mb-10 text-3xl font-bold text-white"
+            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          >
+            Six modules
+          </h2>
+          <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {MODULES.map((m) => {
+              const Icon = m.icon;
+              return (
+                <li key={m.id}>
+                  <Link
+                    href={m.href}
+                    className="card block p-6 transition hover:border-[var(--color-primary)]/40 hover:shadow-[0_0_0_1px_var(--color-border),0_4px_24px_rgba(0,212,255,0.08)]"
+                  >
+                    <span className="inline-flex rounded-lg bg-[var(--color-primary)]/10 p-2 text-[var(--color-primary)]">
+                      <Icon className="h-6 w-6" strokeWidth={2} />
+                    </span>
+                    <h3 className="mt-4 font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                      {m.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-[var(--color-muted)]">{m.short}</p>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
-        </section>
+        </div>
+      </section>
 
-        <section className="mt-16 rounded-2xl border border-[#2563eb]/20 bg-[#2563eb]/5 p-6 sm:p-8">
-          <h2 className="text-xl font-bold text-slate-900">Privacy by design</h2>
-          <p className="mt-3 text-slate-700">
-            Personal data never leaves the Abelian layer. AWS Bedrock sees only anonymized
-            aggregates or contract text—no names, IDs, or addresses. Landlords see: payment
-            guarantee, number of tenants, and rating. Not who you are.
-          </p>
-        </section>
-      </main>
+      {/* Privacy CTA */}
+      <section className="py-16">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="card border-[var(--color-primary)]/20 p-6 sm:p-8" style={{ boxShadow: "0 0 0 1px var(--color-border), 0 4px 24px rgba(0,212,255,0.06)" }}>
+            <h2
+              className="section-heading text-xl font-bold text-white"
+              style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            >
+              Privacy by design
+            </h2>
+            <p className="mt-3 text-[var(--color-muted)]">
+              Personal data never leaves the Abelian layer. AWS Bedrock sees only anonymized
+              aggregates or contract text—no names, IDs, or addresses. Landlords see: payment
+              guarantee, number of tenants, and rating. Not who you are.
+            </p>
+          </div>
+        </div>
+      </section>
 
-      <footer className="border-t border-slate-200 bg-white py-8">
-        <div className="mx-auto max-w-5xl px-4 text-center text-sm text-slate-500 sm:px-6">
+      <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-8">
+        <div className="mx-auto max-w-5xl px-4 text-center text-sm text-[var(--color-muted)] sm:px-6">
           TenantShield · Abelian (QDay) + AWS Bedrock · Built for HK tenant protection · Hack The East 2026
         </div>
       </footer>

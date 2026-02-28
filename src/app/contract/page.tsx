@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { AlertCircle, CheckCircle2, FileUp } from "lucide-react";
 import type { ContractAnalysisResult } from "@/lib/bedrock";
 
 const SAMPLE_TEXT = `TENANCY AGREEMENT
@@ -11,6 +11,29 @@ This agreement is made between Landlord and Tenant.
 3. Tenant shall not sublet. Landlord may enter premises at any time with 24h notice.
 4. Tenant waives all claims against Landlord for any damage or injury.
 5. This agreement is governed by the laws of Hong Kong.`;
+
+function getRiskLevel(count: number): "LOW" | "MEDIUM" | "HIGH" {
+  if (count === 0) return "LOW";
+  if (count <= 2) return "MEDIUM";
+  return "HIGH";
+}
+
+function getRiskBarWidth(count: number): number {
+  if (count === 0) return 0;
+  if (count <= 2) return 50;
+  return 100;
+}
+
+function getRiskColor(level: "LOW" | "MEDIUM" | "HIGH"): string {
+  switch (level) {
+    case "LOW":
+      return "var(--color-success)";
+    case "MEDIUM":
+      return "var(--color-warning)";
+    case "HIGH":
+      return "var(--color-danger)";
+  }
+}
 
 export default function ContractPage() {
   const [text, setText] = useState("");
@@ -52,35 +75,40 @@ export default function ContractPage() {
     }
   }
 
-  return (
-    <div className="min-h-screen bg-[#fafafa] text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
-          <Link href="/" className="font-bold text-[#2563eb] hover:underline">
-            ← TenantShield
-          </Link>
-          <Link href="/pitch" className="text-sm font-medium text-slate-600 hover:text-[#2563eb]">
-            Pitch
-          </Link>
-        </div>
-      </header>
+  const riskLevel = result ? getRiskLevel(result.redFlags.length) : null;
+  const riskBarWidth = result ? getRiskBarWidth(result.redFlags.length) : 0;
 
+  return (
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
       <main className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-        <h1 className="text-3xl font-bold text-slate-900">Contract Analyzer</h1>
-        <p className="mt-2 text-slate-600">
+        <h1
+          className="section-heading text-3xl font-bold text-white"
+          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+        >
+          Contract Analyzer
+        </h1>
+        <p className="mt-2 text-[var(--color-muted)]">
           Paste your tenancy agreement text. Only contract clauses are sent to AI—no names or IDs. Analysis uses Hong Kong tenant law.
         </p>
 
-        <button
-          type="button"
-          onClick={() => setText(SAMPLE_TEXT)}
-          className="mt-5 rounded-full border-2 border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:border-[#2563eb] hover:text-[#2563eb]"
+        {/* Upload / paste zone — dashed cyan, dark bg, centered icon + text */}
+        <div
+          className="mt-8 flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-[var(--color-primary)] bg-[var(--color-surface)] py-12 transition hover:border-[var(--color-primary)]/80"
+          style={{ minHeight: "200px" }}
         >
-          Use sample contract (demo)
-        </button>
+          <FileUp className="mb-3 h-12 w-12 text-[var(--color-primary)]" strokeWidth={1.5} />
+          <p className="mb-2 text-sm font-medium text-[var(--color-text)]">Paste contract text below or use sample</p>
+          <button
+            type="button"
+            onClick={() => setText(SAMPLE_TEXT)}
+            className="text-sm text-[var(--color-primary)] underline hover:no-underline"
+          >
+            Use sample contract (demo)
+          </button>
+        </div>
 
         <textarea
-          className="mt-4 w-full rounded-xl border border-slate-200 bg-white p-4 font-mono text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-[#2563eb] focus:outline-none focus:ring-2 focus:ring-[#2563eb]/20"
+          className="mt-4 w-full rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-4 font-mono text-sm text-[var(--color-text)] placeholder:text-[var(--color-muted)] focus:border-[var(--color-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/20"
           rows={12}
           placeholder="Paste contract text here (or use sample above)..."
           value={text}
@@ -90,38 +118,83 @@ export default function ContractPage() {
           type="button"
           onClick={handleAnalyze}
           disabled={loading || !text.trim()}
-          className="mt-4 rounded-full bg-[#2563eb] px-6 py-3 font-semibold text-white disabled:opacity-50 hover:bg-[#1d4ed8]"
+          className="btn-primary mt-4 rounded-full px-6 py-3 text-sm disabled:opacity-50"
         >
           {loading ? "Analyzing…" : "Analyze"}
         </button>
 
-        {apiError && <p className="mt-4 text-sm font-medium text-amber-700">Note: {apiError}</p>}
+        {apiError && (
+          <p className="mt-4 text-sm font-medium text-[var(--color-warning)]">Note: {apiError}</p>
+        )}
 
         {result && (
-          <div className="mt-10 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-bold text-slate-900">Report</h2>
-            <p className="text-slate-700">{result.summary}</p>
-            {result.redFlags.length > 0 && (
-              <div>
-                <h3 className="font-bold text-red-600">Red flags</h3>
-                <ul className="mt-2 list-inside list-disc text-slate-600">
-                  {result.redFlags.map((f) => (
-                    <li key={f.slice(0, 80)}>{f}</li>
-                  ))}
-                </ul>
+          <div className="mt-10 space-y-6">
+            {/* Threat level bar */}
+            <div className="card p-6">
+              <h2 className="mb-3 text-lg font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                Contract Risk Score: {riskLevel}
+              </h2>
+              <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${riskBarWidth}%`,
+                    backgroundColor: riskLevel ? getRiskColor(riskLevel) : "transparent",
+                  }}
+                />
               </div>
-            )}
-            {result.recommendations.length > 0 && (
-              <div>
-                <h3 className="font-bold text-[#2563eb]">Recommendations</h3>
-                <ul className="mt-2 list-inside list-disc text-slate-600">
-                  {result.recommendations.map((r) => (
-                    <li key={r.slice(0, 80)}>{r}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {result.marketNote && <p className="text-sm text-slate-500">{result.marketNote}</p>}
+            </div>
+
+            <div className="card space-y-6 p-6">
+              <h2 className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                Report
+              </h2>
+              <p className="text-[var(--color-muted)]">{result.summary}</p>
+
+              {result.redFlags.length > 0 && (
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-bold text-[var(--color-danger)]">
+                    <AlertCircle className="h-5 w-5" />
+                    Red flags
+                  </h3>
+                  <ul className="space-y-2">
+                    {result.redFlags.map((f) => (
+                      <li
+                        key={f.slice(0, 80)}
+                        className="flex gap-3 rounded-r-lg border-l-4 border-[var(--color-danger)] bg-[var(--color-danger)]/5 py-2 pl-3 pr-2"
+                      >
+                        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-danger)]" />
+                        <span className="text-sm text-[var(--color-text)]">{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {result.recommendations.length > 0 && (
+                <div>
+                  <h3 className="mb-2 flex items-center gap-2 font-bold text-[var(--color-success)]">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Recommendations
+                  </h3>
+                  <ul className="space-y-2">
+                    {result.recommendations.map((r) => (
+                      <li
+                        key={r.slice(0, 80)}
+                        className="flex gap-3 rounded-r-lg border-l-4 border-[var(--color-success)] bg-[var(--color-success)]/5 py-2 pl-3 pr-2"
+                      >
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--color-success)]" />
+                        <span className="text-sm text-[var(--color-text)]">{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {result.marketNote && (
+                <p className="text-sm text-[var(--color-muted)]">{result.marketNote}</p>
+              )}
+            </div>
           </div>
         )}
       </main>
