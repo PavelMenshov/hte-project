@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
         district: d,
         cached: !!cache,
         updatedAt: cache?.updatedAt ?? null,
-        listingsCount: cache?.listings.length ?? 0,
+        listingsCount: cache?.listings?.length ?? 0,
         marketStats: cache?.market_stats ?? null,
       };
     })
