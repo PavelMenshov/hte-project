@@ -355,13 +355,6 @@ export default function PitchPage() {
               <li>Pays $5 to fund</li>
             </ul>
           </div>
-          <div className="flex flex-col items-center justify-center gap-1 lg:flex-row lg:flex-1 lg:min-w-0">
-            <div className="h-8 w-px bg-[var(--color-border)] lg:h-px lg:w-12 lg:flex-1" />
-            <p className="text-xs text-[var(--color-muted)]">encrypted</p>
-            <svg className="h-6 w-12 shrink-0 rotate-90 text-[var(--color-primary)] lg:h-8 lg:w-16 lg:rotate-0" viewBox="0 0 64 32" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
-              <path className="pitch-arrow-dash" d="M0 16 L56 16 M48 10 L56 16 L48 22" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
           <div className="card flex min-h-[220px] flex-1 flex-col rounded-xl border-[var(--color-secondary)]/40 bg-[var(--color-secondary)]/10 p-6 text-center">
             <Lock className="mx-auto h-10 w-10 text-[var(--color-secondary)]" />
             <h3 className="mt-3 font-bold text-white">Abelian Layer</h3>
