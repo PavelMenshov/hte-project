@@ -46,7 +46,7 @@ Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in
 | **Bedrock Agent (recommended for Contract Analyzer)** | |
 | `BEDROCK_AGENT_ID` | Agent ID from AWS Console → Bedrock → Agents → your agent |
 | `BEDROCK_AGENT_ALIAS_ID` | Alias ID (e.g. alias "prod") — same place in console |
-| `BEDROCK_MODEL_ID` | Used only when Agent is not set; e.g. amazon.nova-lite-v1:0 or Claude with VPN |
+| `BEDROCK_MODEL_ID` | Used only when Agent is not set; e.g. amazon.nova-lite-v1:0 |
 
 ## Abelian / QDay
 
