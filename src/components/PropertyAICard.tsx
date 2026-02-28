@@ -5,6 +5,7 @@ import type { Property, AIRecommendation } from "@/types/property";
 import AIScoreBadge from "@/components/AIScoreBadge";
 import LiveAnalysisBlock, { type ParsedAnalysis } from "@/components/LiveAnalysisBlock";
 import { getStoredOverride, setStoredOverride } from "@/lib/ai-overrides";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 function recommendationColor(rec: AIRecommendation): string {
   if (rec === "BUY") return "var(--color-success)";
@@ -29,6 +30,13 @@ export default function PropertyAICard({ property }: Props) {
   const growthPct = override?.ai_growth_forecast_pct ?? property.ai_growth_forecast_pct;
   const riskLevel = override?.risk_level ?? property.risk_level;
 
+  const [cardRef, barsVisible] = useScrollReveal("visible", 0.15);
+  const locationPct = Math.min(100, 80);
+  const yieldPct = Math.min(100, property.net_yield_pct * 10);
+  const growthBarPct = Math.min(100, (growthPct ?? 0) * 5);
+  const riskNum = riskLevel === "LOW" ? 85 : riskLevel === "HIGH" ? 25 : 55;
+  const riskBarPct = riskNum;
+
   const handleAnalysisComplete = useCallback(
     (parsed: ParsedAnalysis) => {
       setStoredOverride(property.id, {
@@ -49,7 +57,7 @@ export default function PropertyAICard({ property }: Props) {
 
   return (
     <>
-      <div className="card p-6">
+      <div ref={cardRef as React.RefObject<HTMLDivElement>} className="card p-6">
         <h3
           className="font-bold text-white"
           style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
@@ -75,6 +83,27 @@ export default function PropertyAICard({ property }: Props) {
           <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
             <span className="text-[var(--color-muted)]">Risk</span>
             <span className="ml-2 font-mono">{riskLevel ?? "MEDIUM"}</span>
+          </div>
+        </div>
+        <div className="mt-4 space-y-2">
+          <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide">Score breakdown</p>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {[
+              { label: "Location", pct: locationPct, color: "var(--color-primary)" },
+              { label: "Yield", pct: yieldPct, color: "var(--color-success)" },
+              { label: "Growth", pct: growthBarPct, color: "var(--color-secondary)" },
+              { label: "Risk", pct: riskBarPct, color: "var(--color-warning)" },
+            ].map((item, i) => (
+              <div key={item.label} className="space-y-1">
+                <span className="text-xs text-[var(--color-muted)]">{item.label}</span>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
+                  <div
+                    className={`h-full rounded-full ${barsVisible ? `bar-animated ${i === 1 ? "bar-delay-1" : i === 2 ? "bar-delay-2" : i === 3 ? "bar-delay-3" : ""}` : ""}`}
+                    style={barsVisible ? { ["--bar-target" as string]: `${item.pct}%`, backgroundColor: item.color } : { width: `${item.pct}%`, backgroundColor: item.color }}
+                  />
+                </div>
+              </div>
+            ))}
           </div>
         </div>
         {property.ai_buy_reasons.length > 0 && (

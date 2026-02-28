@@ -9,6 +9,32 @@ interface Props {
   portfolioContext: PortfolioContext;
 }
 
+function useTypewriter(text: string, enabled: boolean, speed = 18) {
+  const [display, setDisplay] = useState("");
+  const prevTextRef = useRef("");
+  useEffect(() => {
+    if (!enabled || !text) {
+      setDisplay(text || "");
+      prevTextRef.current = text;
+      return;
+    }
+    if (prevTextRef.current === text) {
+      setDisplay(text);
+      return;
+    }
+    prevTextRef.current = text;
+    setDisplay("");
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplay(text.slice(0, i));
+      i++;
+      if (i > text.length) clearInterval(timer);
+    }, speed);
+    return () => clearInterval(timer);
+  }, [text, enabled, speed]);
+  return display;
+}
+
 export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -17,6 +43,14 @@ export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
   const welcomeSent = useRef(false);
 
   const scrollRef = useRef<HTMLDivElement>(null);
+
+  const lastAssistantMessage = messages.length > 0 && messages[messages.length - 1]?.role === "assistant"
+    ? messages[messages.length - 1]
+    : null;
+  const typewriterContent = useTypewriter(
+    lastAssistantMessage?.content ?? "",
+    !streaming && lastAssistantMessage != null
+  );
 
   useEffect(() => {
     if (welcomeSent.current || streaming) return;
@@ -115,7 +149,9 @@ export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
               {msg.role === "user" ? "You: " : ""}
             </span>
             <span className="text-[var(--color-text)]" style={{ fontFamily: msg.role === "assistant" ? "var(--font-ibm-plex-mono)" : undefined }}>
-              {msg.content}
+              {msg.role === "assistant" && i === displayMessages.length - 1 && !streaming
+                ? typewriterContent
+                : msg.content}
             </span>
           </div>
         ))}
@@ -126,7 +162,12 @@ export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
           </div>
         )}
         {streaming && !streamText && (
-          <p className="text-[var(--color-muted)]">Thinking…</p>
+          <div className="flex gap-1 items-center text-[var(--color-muted)]">
+            <span className="text-sm">Thinking</span>
+            <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+            <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+            <span className="typing-dot w-2 h-2 rounded-full bg-[var(--color-primary)]" />
+          </div>
         )}
       </div>
       <div className="mt-3 flex gap-2">

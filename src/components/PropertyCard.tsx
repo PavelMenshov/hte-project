@@ -13,9 +13,10 @@ type Props = {
   readonly property: Property;
   readonly onAnalyze?: (property: Property) => void | Promise<void>;
   readonly isAnalyzing?: boolean;
+  readonly animateScore?: boolean;
 };
 
-export default function PropertyCard({ property, onAnalyze, isAnalyzing }: Props) {
+export default function PropertyCard({ property, onAnalyze, isAnalyzing, animateScore }: Props) {
   const {
     id,
     name,
@@ -38,7 +39,7 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing }: Props
   return (
     <Link
       href={`/properties/${id}`}
-      className="card group block overflow-hidden transition-all duration-300 hover:border-[var(--color-primary)] hover:shadow-[0_0_0_1px_var(--color-primary),0_0_24px_rgba(0,212,255,0.12)]"
+      className="card card-hover group block overflow-hidden"
     >
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
@@ -54,7 +55,7 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing }: Props
           📍 {district}, {address.split(",")[0]}
         </p>
         <div className="mt-4 flex items-center justify-between gap-2">
-          <AIScoreBadge score={ai_score} />
+          <AIScoreBadge score={ai_score} animate={animateScore} />
           <span
             className="text-xs font-medium uppercase"
             style={{

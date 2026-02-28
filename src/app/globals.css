@@ -76,6 +76,10 @@ body {
 }
 
 /* City grid lines (hero background) */
+@keyframes hero-grid-drift {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 60px 0, 60px 0; }
+}
 .hero-grid {
   background-image:
     repeating-linear-gradient(
@@ -92,6 +96,7 @@ body {
       transparent 1px,
       transparent 60px
     );
+  animation: hero-grid-drift 6s linear infinite;
 }
 
 /* Vault pulse animation for deposit page */
@@ -212,4 +217,164 @@ select option {
 .nav-link-active {
   box-shadow: 0 0 0 2px var(--color-primary), 0 0 12px rgba(0, 212, 255, 0.25);
   animation: nav-glow-pulse 2s ease-in-out infinite;
+}
+
+/* ─── Scroll-triggered fade-in (используй с IntersectionObserver) ─── */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+.animate-fade-in-up-delay-1 { opacity: 0; animation: fadeInUp 0.6s ease-out 0.1s forwards; }
+.animate-fade-in-up-delay-2 { opacity: 0; animation: fadeInUp 0.6s ease-out 0.2s forwards; }
+.animate-fade-in-up-delay-3 { opacity: 0; animation: fadeInUp 0.6s ease-out 0.35s forwards; }
+.animate-fade-in-up-delay-4 { opacity: 0; animation: fadeInUp 0.6s ease-out 0.5s forwards; }
+.reveal-section-wrapper { opacity: 0; }
+
+/* ─── Число-каунтер (применяется через JS, этот класс для начального состояния) ─── */
+.counter-value {
+  font-family: var(--font-ibm-plex-mono), ui-monospace, monospace;
+  transition: all 0.05s linear;
+}
+
+/* ─── Карточка hover с cyan glow ─── */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: 0 0 0 1px var(--color-border), 0 8px 32px rgba(0, 212, 255, 0.12);
+}
+
+/* ─── Shimmer loading skeleton ─── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-surface) 25%,
+    rgba(0, 212, 255, 0.06) 50%,
+    var(--color-surface) 75%
+  );
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+}
+
+/* ─── AI typing dots ─── */
+@keyframes typing-dot {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40%           { opacity: 1;   transform: scale(1); }
+}
+.typing-dot:nth-child(1) { animation: typing-dot 1.2s ease-in-out 0s infinite; }
+.typing-dot:nth-child(2) { animation: typing-dot 1.2s ease-in-out 0.2s infinite; }
+.typing-dot:nth-child(3) { animation: typing-dot 1.2s ease-in-out 0.4s infinite; }
+
+/* ─── Progress bar fill ─── */
+@keyframes bar-fill {
+  from { width: 0%; }
+  to   { width: var(--bar-target); }
+}
+.bar-animated {
+  animation: bar-fill 1s ease-out forwards;
+}
+.bar-animated.bar-delay-1 { animation-delay: 0.1s; }
+.bar-animated.bar-delay-2 { animation-delay: 0.2s; }
+.bar-animated.bar-delay-3 { animation-delay: 0.3s; }
+.bar-animated.bar-delay-4 { animation-delay: 0.4s; }
+
+/* ─── Cyan scan line (для AI-блоков) ─── */
+@keyframes scan {
+  0%   { top: -2px; opacity: 0.6; }
+  100% { top: 100%; opacity: 0; }
+}
+.ai-scan-container {
+  position: relative;
+  overflow: hidden;
+}
+.ai-scan-container::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.5), transparent);
+  animation: scan 2.5s linear infinite;
+  pointer-events: none;
+}
+
+/* ─── Stagger list reveal ─── */
+@keyframes stagger-item {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.stagger-item { opacity: 0; }
+.stagger-item.visible {
+  animation: stagger-item 0.4s ease-out forwards;
+}
+.stagger-reveal.visible .stagger-item { animation: stagger-item 0.4s ease-out forwards; }
+.stagger-reveal.visible .stagger-item:nth-child(1) { animation-delay: 0s; }
+.stagger-reveal.visible .stagger-item:nth-child(2) { animation-delay: 0.15s; }
+.stagger-reveal.visible .stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-reveal.visible .stagger-item:nth-child(n+4) { animation-delay: 0.45s; }
+
+/* ─── Token flip (для dashboard — когда значение меняется) ─── */
+@keyframes flip-in {
+  from { transform: rotateX(-90deg); opacity: 0; }
+  to   { transform: rotateX(0deg);   opacity: 1; }
+}
+.flip-update {
+  animation: flip-in 0.3s ease-out forwards;
+  transform-origin: center;
+}
+
+/* ─── Pulse dot (статус индикатор) ─── */
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%       { transform: scale(1.5); opacity: 0.5; }
+}
+.pulse-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-success);
+  animation: pulse-dot 2s ease-in-out infinite;
+  display: inline-block;
+}
+.pulse-dot.warning { background: var(--color-warning); }
+.pulse-dot.danger  { background: var(--color-danger); }
+
+/* ─── Modal (visible when in DOM; closing anim via .modal-closing) ─── */
+.modal-backdrop {
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+.modal-backdrop.modal-closing {
+  opacity: 0;
+}
+.modal-content {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.modal-content.modal-closing {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+/* ─── Confetti pop ─── */
+@keyframes confetti-pop {
+  0%   { transform: translate(0, 0) scale(0); opacity: 1; }
+  100% { transform: translate(var(--tx), var(--ty)) scale(1); opacity: 0; }
+}
+
+/* ─── Reduced motion: отключить всё ─── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

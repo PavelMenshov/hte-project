@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import portfolioData from "@/data/portfolio.json";
 import type { Portfolio } from "@/types/property";
 
@@ -17,12 +17,21 @@ type Props = {
 export default function InvestmentCalculator({ onSimulate }: Props) {
   const [amount, setAmount] = useState(10000);
   const [payoutType, setPayoutType] = useState<"quarterly" | "reinvest">("quarterly");
+  const [flipKey, setFlipKey] = useState(0);
+  const prevAmountRef = useRef(amount);
 
   const tokens = Math.floor(amount / portfolio.token_nav_hkd);
   const sharePct = (tokens / portfolio.total_tokens_outstanding) * 100;
   const annualIncome = (amount * (portfolio.avg_portfolio_yield_pct / 100)) * INVESTOR_SHARE;
   const quarterlyIncome = annualIncome / 4;
   const projected5y = amount * Math.pow(1 + (portfolio.avg_portfolio_yield_pct / 100) * INVESTOR_SHARE, 5);
+
+  useEffect(() => {
+    if (amount !== prevAmountRef.current) {
+      prevAmountRef.current = amount;
+      setFlipKey((k) => k + 1);
+    }
+  }, [amount]);
 
   return (
     <div className="card p-6">
@@ -54,22 +63,22 @@ export default function InvestmentCalculator({ onSimulate }: Props) {
           className="mt-2 w-full accent-[var(--color-primary)]"
         />
         <div className="mt-2 flex justify-between text-sm">
-          <span style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>HKD {amount.toLocaleString()}</span>
-          <span className="text-[var(--color-muted)]">Tokens: {tokens}</span>
+          <span key={`amt-${flipKey}`} className="flip-update inline-block" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>HKD {amount.toLocaleString()}</span>
+          <span key={`tok-${flipKey}`} className="flip-update inline-block text-[var(--color-muted)]">Tokens: {tokens}</span>
         </div>
       </div>
       <div className="mt-4 space-y-2 rounded-lg bg-[var(--color-bg)]/50 p-4 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
         <div className="flex justify-between">
           <span className="text-[var(--color-muted)]">Your portfolio share</span>
-          <span>{sharePct.toFixed(3)}%</span>
+          <span key={`share-${flipKey}`} className="flip-update inline-block">{sharePct.toFixed(3)}%</span>
         </div>
         <div className="flex justify-between">
           <span className="text-[var(--color-muted)]">Estimated annual income (8.3% yield × 90%)</span>
-          <span className="text-[var(--color-primary)]">HKD {Math.round(annualIncome).toLocaleString()}</span>
+          <span key={`income-${flipKey}`} className="flip-update inline-block text-[var(--color-primary)]">HKD {Math.round(annualIncome).toLocaleString()}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-[var(--color-muted)]">Projected value in 5 years</span>
-          <span>HKD {Math.round(projected5y).toLocaleString()} (+{(((projected5y - amount) / amount) * 100).toFixed(0)}%)</span>
+          <span key={`proj-${flipKey}`} className="flip-update inline-block">HKD {Math.round(projected5y).toLocaleString()} (+{(((projected5y - amount) / amount) * 100).toFixed(0)}%)</span>
         </div>
       </div>
       <div className="mt-4">

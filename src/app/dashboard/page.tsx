@@ -8,6 +8,8 @@ import { getStoredTokenBalance } from "@/lib/user-tokens";
 import portfolioData from "@/data/portfolio.json";
 import type { Portfolio } from "@/types/property";
 import PortfolioAdvisorChat from "@/components/PortfolioAdvisorChat";
+import { useCounter } from "@/lib/useCounter";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const portfolio = portfolioData as Portfolio;
 
@@ -36,12 +38,19 @@ export default function DashboardPage() {
     }
   }, [mounted]);
 
-  if (!mounted) return null;
-
   const totalValue = tokensHeld * portfolio.token_nav_hkd;
   const sharePct = (tokensHeld / portfolio.total_tokens_outstanding) * 100;
   const totalEarned = Math.round(MOCK_TOTAL_EARNED_BASE * (tokensHeld / 25));
   const nextPayout = Math.round(MOCK_NEXT_PAYOUT_BASE * (tokensHeld / 25));
+
+  const counterTokens = useCounter(mounted ? tokensHeld : 0, 1200, 0);
+  const counterValue = useCounter(mounted ? totalValue : 0, 1200, 0);
+  const counterEarned = useCounter(mounted ? totalEarned : 0, 1200, 0);
+  const counterPayout = useCounter(mounted ? nextPayout : 0, 1200, 0);
+
+  const [tableRef] = useScrollReveal("visible", 0.1);
+
+  if (!mounted) return null;
 
   return (
     <div className="min-h-screen text-[var(--color-text)]">
@@ -59,7 +68,7 @@ export default function DashboardPage() {
             <dl className="mt-4 grid gap-4 sm:grid-cols-2" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Tokens held</dt>
-                <dd className="text-2xl font-bold text-[var(--color-primary)]">{tokensHeld}</dd>
+                <dd className="counter-value text-2xl font-bold text-[var(--color-primary)]">{Math.round(counterTokens)}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Token price</dt>
@@ -67,15 +76,15 @@ export default function DashboardPage() {
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Total value</dt>
-                <dd className="text-2xl">HKD {totalValue.toLocaleString()}</dd>
+                <dd className="counter-value text-2xl">HKD {Math.round(counterValue).toLocaleString()}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Total earned</dt>
-                <dd className="text-2xl text-[var(--color-success)]">HKD {totalEarned.toLocaleString()}</dd>
+                <dd className="counter-value text-2xl text-[var(--color-success)]">HKD {Math.round(counterEarned).toLocaleString()}</dd>
               </div>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Next payout</dt>
-                <dd className="text-xl">HKD {nextPayout} <span className="text-xs text-[var(--color-muted)]">(in 23 days)</span></dd>
+                <dd className="counter-value text-xl">HKD {Math.round(counterPayout)} <span className="text-xs text-[var(--color-muted)]">(in 23 days)</span></dd>
               </div>
             </dl>
             <p className="mt-4 text-sm text-[var(--color-muted)]">
@@ -106,7 +115,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="card mt-8 overflow-x-auto p-6">
+        <div ref={tableRef as React.RefObject<HTMLDivElement>} className="card mt-8 overflow-x-auto p-6 stagger-reveal">
           <h2 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wide">Payout history</h2>
           <table className="mt-4 w-full text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
             <thead>
@@ -117,17 +126,17 @@ export default function DashboardPage() {
               </tr>
             </thead>
             <tbody className="text-[var(--color-text)]">
-              <tr className="border-b border-[var(--color-border)]/50">
+              <tr className="border-b border-[var(--color-border)]/50 stagger-item">
                 <td className="py-2">Dec 2025</td>
                 <td className="py-2">HKD 620</td>
                 <td className="py-2">Quarterly payout</td>
               </tr>
-              <tr className="border-b border-[var(--color-border)]/50">
+              <tr className="border-b border-[var(--color-border)]/50 stagger-item">
                 <td className="py-2">Sep 2025</td>
                 <td className="py-2">HKD 590</td>
                 <td className="py-2">Quarterly payout</td>
               </tr>
-              <tr className="border-b border-[var(--color-border)]/50">
+              <tr className="border-b border-[var(--color-border)]/50 stagger-item">
                 <td className="py-2">Jun 2025</td>
                 <td className="py-2">HKD 630</td>
                 <td className="py-2">Quarterly payout</td>

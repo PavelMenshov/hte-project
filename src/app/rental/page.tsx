@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import propertiesData from "@/data/properties.json";
 import type { Property } from "@/types/property";
+import { useScrollReveal } from "@/lib/useScrollReveal";
 
 const PROPERTIES = (propertiesData as { properties: Property[] }).properties;
 const IN_PORTFOLIO = PROPERTIES.filter((p) => p.status === "in_portfolio");
@@ -39,11 +40,41 @@ const MOVE_IN_OPTIONS = [
   { id: "flexible", label: "Flexible" },
 ] as const;
 
+function RoomsIndicator({ occupied, total }: { occupied: number; total: number }) {
+  const [visibleCount, setVisibleCount] = useState(0);
+  useEffect(() => {
+    setVisibleCount(0);
+    let n = 0;
+    const t = setInterval(() => {
+      n++;
+      setVisibleCount(n);
+      if (n >= total) clearInterval(t);
+    }, 50);
+    return () => clearInterval(t);
+  }, [total]);
+  return (
+    <p className="mt-2 flex items-center gap-1.5 text-sm text-[var(--color-muted)]">
+      {Array.from({ length: total }, (_, i) => (
+        <span
+          key={i}
+          className="inline-block h-3 w-3 rounded-sm border border-[var(--color-border)] transition-all duration-150"
+          style={{
+            backgroundColor: i < visibleCount ? (i < occupied ? "var(--color-primary)" : "transparent") : "transparent",
+            opacity: i < occupied ? 0.9 : 1,
+          }}
+        />
+      ))}
+      <span className="ml-1" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>{occupied}/{total} occupied</span>
+    </p>
+  );
+}
+
 export default function RentalPage() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [requestModalId, setRequestModalId] = useState<string | null>(null);
   const [requestSubmittedId, setRequestSubmittedId] = useState<string | null>(null);
+  const [requestSubmittedWaitlistId, setRequestSubmittedWaitlistId] = useState<string | null>(null);
   const [waitlistSubmitted, setWaitlistSubmitted] = useState(false);
 
   const [joinMoveIn, setJoinMoveIn] = useState("");
@@ -56,8 +87,10 @@ export default function RentalPage() {
   const [waitlistMaxHkd, setWaitlistMaxHkd] = useState("");
   const [waitlistMoveIn, setWaitlistMoveIn] = useState("");
   const [waitlistEmail, setWaitlistEmail] = useState("");
+  const [modalClosing, setModalClosing] = useState(false);
 
   const moveInMonths = useMemo(() => getMoveInMonths(4), []);
+  const [cardsRef] = useScrollReveal("visible", 0.1);
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
@@ -80,6 +113,8 @@ export default function RentalPage() {
   function openRequestModal(id: string) {
     setRequestModalId(id);
     setRequestSubmittedId(null);
+    setRequestSubmittedWaitlistId(null);
+    setModalClosing(false);
     setJoinMoveIn(moveInMonths[0]?.value ?? "");
     setJoinRoomType("any");
     setJoinAbout("");
@@ -87,13 +122,23 @@ export default function RentalPage() {
   }
 
   function closeRequestModal() {
-    setRequestModalId(null);
+    setModalClosing(true);
+    setTimeout(() => {
+      setRequestModalId(null);
+      setModalClosing(false);
+    }, 200);
   }
 
   function handleJoinSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (requestModalId) {
+      setRequestSubmittedId(requestModalId);
+      const prop = IN_PORTFOLIO.find((p) => p.id === requestModalId);
+      if (prop && prop.tenants_current >= prop.rooms) {
+        setRequestSubmittedWaitlistId(requestModalId);
+      }
+    }
     setRequestModalId(null);
-    if (requestModalId) setRequestSubmittedId(requestModalId);
   }
 
   function toggleDistrict(id: string) {
@@ -129,14 +174,14 @@ export default function RentalPage() {
         </section>
 
         {/* Block 2: Property cards (in_portfolio only) */}
-        <section className="mt-12 space-y-6">
-          {IN_PORTFOLIO.map((p) => {
+        <section ref={cardsRef as React.RefObject<HTMLElement>} className="mt-12 space-y-6 stagger-reveal visible">
+          {IN_PORTFOLIO.map((p, idx) => {
             const available = Math.max(0, p.rooms - p.tenants_current);
             const rentPerRoom = p.rooms > 0 ? Math.round(p.monthly_rent_hkd / p.rooms) : 0;
             const submitted = requestSubmittedId === p.id;
 
             return (
-              <div key={p.id} className="card overflow-hidden p-6">
+              <div key={p.id} className="card card-hover overflow-hidden p-6 stagger-item">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <span className="rounded-full bg-[var(--color-success)]/20 px-3 py-1 text-xs font-semibold text-[var(--color-success)] border border-[var(--color-success)]/40">
                     🏠 NOW RENTING
@@ -154,6 +199,7 @@ export default function RentalPage() {
                 <p className="mt-2 text-sm text-[var(--color-text)]" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
                   {p.rooms} rooms total · {available} available · {p.size_sqft.toLocaleString()} sqft
                 </p>
+                <RoomsIndicator occupied={p.tenants_current} total={p.rooms} />
                 <p className="mt-2 text-sm">
                   <span className="text-[var(--color-primary)] font-medium">
                     From {formatHKD(rentPerRoom)} / room / month
@@ -170,17 +216,21 @@ export default function RentalPage() {
                 <div className="mt-6 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]/50 p-4">
                   {submitted ? (
                     <p className="text-sm text-[var(--color-success)]">
-                      ✅ Request submitted. We&apos;ll match you with co-tenants and reach out within 48h.
+                      {requestSubmittedWaitlistId === p.id
+                        ? "✅ You're on the waitlist. We'll notify you when a room opens up."
+                        : "✅ Request submitted. We'll match you with co-tenants and reach out within 48h."}
                     </p>
                   ) : (
                     <>
-                      <p className="text-sm text-[var(--color-muted)]">Looking for co-tenants?</p>
+                      <p className="text-sm text-[var(--color-muted)]">
+                        {available === 0 ? "No rooms available? Join the waitlist for this property." : "Looking for co-tenants?"}
+                      </p>
                       <button
                         type="button"
                         onClick={() => openRequestModal(p.id)}
                         className="mt-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
                       >
-                        Request to Join This Property →
+                        {available === 0 ? "Request to Join Waitlist →" : "Request to Join This Property →"}
                       </button>
                     </>
                   )}
@@ -319,7 +369,7 @@ export default function RentalPage() {
       {/* Modal: Request to Join */}
       {requestModalId && propertyForModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          className={`modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 ${modalClosing ? "modal-closing" : ""}`}
           onClick={closeRequestModal}
           onKeyDown={(e) => e.key === "Escape" && closeRequestModal()}
           role="dialog"
@@ -328,13 +378,13 @@ export default function RentalPage() {
           tabIndex={0}
         >
           <div
-            className="card w-full max-w-md p-6 shadow-xl"
+            className={`modal-content card w-full max-w-md p-6 shadow-xl ${modalClosing ? "modal-closing" : ""}`}
             onClick={(e) => e.stopPropagation()}
             onKeyDown={(e) => e.stopPropagation()}
             role="presentation"
           >
             <h2 id="modal-title" className="text-xl font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-              Join Co-living: {propertyForModal.name}
+              {propertyForModal.tenants_current >= propertyForModal.rooms ? "Join Waitlist: " : "Join Co-living: "}{propertyForModal.name}
             </h2>
             <form onSubmit={handleJoinSubmit} className="mt-6 space-y-4">
               <div>
@@ -407,7 +457,7 @@ export default function RentalPage() {
                   Cancel
                 </button>
                 <button type="submit" className="btn-primary flex-1 rounded-full py-2 text-sm">
-                  Submit Request →
+                  {propertyForModal.tenants_current >= propertyForModal.rooms ? "Join Waitlist →" : "Submit Request →"}
                 </button>
               </div>
             </form>
