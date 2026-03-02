@@ -5,7 +5,7 @@
 - **For investors:** AI selects and scores HK co-living properties; Tenantshield acquires them; you buy tokens (from HKD 1,000) and earn 90% of rental income. Ownership is quantum-private on Abelian QDay—no KYC, zero-knowledge proof.
 - **For tenants:** Upload a tenancy agreement and get an AI (Bedrock) report with red flags and recommendations. Lock your deposit in an on-chain escrow on QDay so the landlord sees a guarantee, not your personal data. Optional: contribute to a shared Legal Fund and join collective rent pools.
 
-**Tech:** Next.js, TypeScript, AWS Bedrock (agents + InvokeModel), Solidity (Escrow, Legal Fund, Collective Rent Pool), Abelian QDay (EVM-compatible). Built for Hack The East 2026.
+**Tech:** Next.js, TypeScript, AWS Bedrock (agents + InvokeModel), Solidity (Escrow, Legal Fund, Collective Rent Pool), Abelian QDay (EVM-compatible).
 
 **One-liner:**  
 *AI finds the best properties. We buy them. You earn. Tenants get contract checks and escrow without giving up their identity—powered by AWS Bedrock and Abelian QDay.*

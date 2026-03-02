@@ -1,7 +1,7 @@
 /**
  * Pre-fetch market data for all districts.
- * Run before hackathon: npx tsx scripts/prefetch-cache.ts
- * Commit data/market-cache/ so demo works even if scraper fails on stage.
+ * Run with: npx tsx scripts/prefetch-cache.ts
+ * Commit data/market-cache/ so the app works even if the scraper fails at runtime.
  */
 
 import { scrapeAllDistricts } from "../src/lib/scraper";
@@ -18,7 +18,7 @@ async function main() {
     console.log(`❌ Failed: ${failed.map((r) => `${r.district} (${r.error})`).join(", ")}`);
   }
   console.log("\n📦 Cache saved to data/market-cache/");
-  console.log("Commit this folder before the hackathon demo!");
+  console.log("Commit this folder to keep the cache up to date!");
 }
 
 main().catch((e) => {

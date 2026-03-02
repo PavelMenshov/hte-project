@@ -45,7 +45,7 @@ export default function Home() {
 
       <footer className="border-t border-[var(--color-border)] bg-[var(--color-surface)] py-8">
         <div className="mx-auto max-w-5xl px-4 text-center text-sm text-[var(--color-muted)] sm:px-6">
-          Tenantshield · AWS Bedrock + Abelian QDay · Hack The East 2026
+          Tenantshield · AWS Bedrock + Abelian QDay
         </div>
       </footer>
     </div>
