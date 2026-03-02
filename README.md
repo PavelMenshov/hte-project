@@ -10,7 +10,7 @@ TenantShield is a privacy-first platform that serves two audiences: **investors*
 ```bash
 npm install
 cp .env.example .env.local
-# Edit .env.local — add AWS credentials and optionally QDay RPC/chainId
+# Edit .env.local with your values only (never commit .env.local — see SECURITY.md)
 npm run dev
 ```
 
@@ -76,6 +76,10 @@ The Contract Analyzer shows a clear fallback message when Bedrock is not configu
 6. The IAM user or role whose credentials are in `.env.local` needs the `bedrock:InvokeAgent` permission.
 
 To disable the agent temporarily, comment out `BEDROCK_AGENT_ID` and `BEDROCK_AGENT_ALIAS_ID`. The app will fall back to direct InvokeModel using `BEDROCK_MODEL_ID`.
+
+## Security
+
+Secrets (AWS keys, env files with credentials) are never committed. We use environment variables, a hardened `.gitignore`, and optional CI secret scanning. See **[SECURITY.md](SECURITY.md)** for practices and what to do if a secret was ever leaked.
 
 ## Abelian / QDay
 
