@@ -1,98 +1,91 @@
 # TenantShield
 
-Collective tenant protection platform for Hong Kong students: contract analysis (AWS Bedrock), escrow deposits, and anonymous collective bargaining on **Abelian / QDay** (quantum-resistant, privacy-first).
+TenantShield is a privacy-first platform that serves two audiences: **investors** who own fractional Hong Kong real estate via tokens, and **tenants** (especially students) who get AI-powered contract analysis, escrow deposits, and collective bargaining — without handing over their identity.
+
+- For investors: AI selects and scores HK co-living properties. Buy Tenantshield tokens from HKD 1,000 and earn 90% of net rental income. Ownership is quantum-private on Abelian QDay.
+- For tenants: Upload a tenancy agreement and receive an AI analysis with red flags and recommendations. Lock your deposit in an on-chain escrow on QDay so the landlord sees a cryptographic guarantee, not your personal data.
 
 ## Quick start
 
 ```bash
 npm install
 cp .env.example .env.local
-# Edit .env.local: add AWS credentials and optionally QDay RPC/chainId
+# Edit .env.local — add AWS credentials and optionally QDay RPC/chainId
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Adaptive layout: works on mobile and desktop.
+Open [http://localhost:3000](http://localhost:3000). The layout is responsive and works on mobile and desktop.
 
-### Share via ngrok
+## Project structure
 
-To expose the app to the internet (e.g. for demos or sharing with judges):
+```
+hte-project/
+  contracts/          Solidity smart contracts (Escrow, LegalFund, CollectiveRentPool, etc.)
+  data/               Cached market data used by the scraper scheduler
+  docs/               Additional project documentation
+  public/             Static assets and pre-built JSON data files
+  scrapers/           Python scraper for Squarefoot property listings
+  scripts/            One-off TypeScript utility scripts (cache prefetch, HTML exploration)
+  src/
+    app/              Next.js App Router pages and route handlers
+      api/            Server-side API routes (Bedrock, auth, market data, scraping)
+    components/       Shared React components
+    data/             Static JSON data consumed by the frontend
+    lib/              Shared utilities (AI clients, auth, scraper logic, wallet helpers)
+    types/            Shared TypeScript type definitions
+```
 
-1. In one terminal: `npm run dev` (keep it running).
-2. In another terminal: `npm run share` (runs `ngrok http 3000`).
+### Key pages
 
-Ngrok will print a public URL (e.g. `https://abc123.ngrok-free.app`). Open it in a browser or share the link. The first time you may need to accept the ngrok cookie banner when visiting the URL.
+| Route | Description |
+|-------|-------------|
+| `/` | Landing page with hero, how-it-works, and portfolio stats |
+| `/properties` | Browse AI-scored co-living properties |
+| `/invest` | Buy Tenantshield tokens |
+| `/dashboard` | Investor dashboard — balances and payouts |
+| `/contract` | Contract Analyzer — upload a tenancy agreement for AI review |
+| `/deposit` | Lock a rental deposit in on-chain escrow on QDay |
+| `/legal` | Contribute to the shared Legal Fund on QDay |
+| `/collective` | Join a collective rent pool |
+| `/rental` | Browse available rooms in Tenantshield-managed properties |
+| `/reviews` | Anonymous verified tenant reviews |
+| `/about` | Privacy architecture and product FAQ |
 
-**Использовать свой аккаунт ngrok (или сменить токен):**
-
-1. Зайди на [dashboard.ngrok.com](https://dashboard.ngrok.com) и залогинься (или зарегистрируйся).
-2. В разделе **Your Authtoken** скопируй токен.
-3. В терминале выполни один раз:
-   ```bash
-   npx ngrok config add-authtoken ВСТАВЬ_СЮДА_ТОКЕН
-   ```
-   Это сохранит токен в конфиг ngrok; дальше `npm run share` будет использовать твой аккаунт.
-
-   Либо можно не сохранять в конфиг, а передавать токен через переменную окружения перед запуском:
-   - Windows (PowerShell): `$env:NGROK_AUTHTOKEN="твой_токен"; npm run share`
-   - Mac/Linux: `NGROK_AUTHTOKEN=твой_токен npm run share`
-
-## Environment
+## Environment variables
 
 | Variable | Purpose |
 |----------|---------|
 | `NEXT_PUBLIC_QDAY_RPC` | QDay testnet RPC (default: https://testnet-rpc-00.qday.info) |
 | `NEXT_PUBLIC_QDAY_CHAIN_ID` | Chain ID for QDay testnet |
-| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | For Bedrock |
-| **Bedrock Agent (recommended for Contract Analyzer)** | |
-| `BEDROCK_AGENT_ID` | Agent ID from AWS Console → Bedrock → Agents → your agent |
-| `BEDROCK_AGENT_ALIAS_ID` | Alias ID (e.g. alias "prod") — same place in console |
-| `BEDROCK_MODEL_ID` | Used only when Agent is not set; e.g. amazon.nova-lite-v1:0 |
+| `AWS_REGION`, `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` | AWS credentials for Bedrock |
+| `BEDROCK_AGENT_ID` | Agent ID from AWS Console (Bedrock Agents) |
+| `BEDROCK_AGENT_ALIAS_ID` | Alias ID for the Bedrock agent |
+| `BEDROCK_MODEL_ID` | Fallback model when no agent is configured (e.g. `amazon.nova-lite-v1:0`) |
+| `NEXT_PUBLIC_ESCROW_ADDRESS` | Deployed Escrow contract address on QDay |
+| `NEXT_PUBLIC_LEGAL_FUND_ADDRESS` | Deployed LegalFund contract address on QDay |
 
-### Отладка Bedrock Agent
+The Contract Analyzer shows a clear fallback message when Bedrock is not configured. The Deposit and Legal Fund pages work in "Simulate" mode when contracts are not deployed.
 
-Если Contract Analyzer с агентом не работает:
+### Bedrock Agent setup
 
-1. **Терминал** — при нажатии "Analyze" в консоли, где запущен `npm run dev`, появляется строка `[Bedrock Agent] Invoking: region=... agentId=... agentAliasId=...`. По ней проверь, что регион и ID подставляются (не пустые).
-2. **Текст ошибки на странице** — в отчёте показывается полное сообщение от AWS и RequestId. По RequestId можно искать в CloudWatch или в поддержке AWS.
-3. **Чек-лист в консоли AWS:**
-   - Bedrock → Agents → выбран нужный агент.
-   - У агента в **Edit** в качестве модели указана **Amazon Nova** (например amazon.nova-lite-v1:0).
-   - **Prepare agent** выполнен (статус Prepared). После изменений — снова Prepare.
-   - Вкладка **Aliases**: скопируй **Alias ID** (длинный строковый ID, не "Test alias" по имени). В .env.local должен быть именно он в `BEDROCK_AGENT_ALIAS_ID`.
-   - `BEDROCK_AGENT_ID` — это **Agent ID** (на странице агента вверху), не Alias ID.
-4. **Регион** — `AWS_REGION` в .env.local должен совпадать с регионом, где создан агент (например `us-east-1`).
-5. **Права IAM** — у пользователя/роли, чьи ключи в .env.local, должно быть разрешение `bedrock:InvokeAgent` (и доступ к Bedrock Agents в этом регионе).
+1. In AWS Console go to Bedrock → Agents and create or select your agent.
+2. Set the foundation model to Amazon Nova (e.g. `amazon.nova-lite-v1:0`) and press "Prepare agent".
+3. Copy the Agent ID (shown at the top of the agent page) into `BEDROCK_AGENT_ID`.
+4. Under Aliases, copy the Alias ID (the long string ID, not the alias name) into `BEDROCK_AGENT_ALIAS_ID`.
+5. Make sure `AWS_REGION` matches the region where the agent was created.
+6. The IAM user or role whose credentials are in `.env.local` needs the `bedrock:InvokeAgent` permission.
 
-Временно можно отключить агента: закомментируй `BEDROCK_AGENT_ID` и `BEDROCK_AGENT_ALIAS_ID` в .env.local — тогда будет использоваться прямой InvokeModel с `BEDROCK_MODEL_ID=amazon.nova-lite-v1:0`.
+To disable the agent temporarily, comment out `BEDROCK_AGENT_ID` and `BEDROCK_AGENT_ALIAS_ID`. The app will fall back to direct InvokeModel using `BEDROCK_MODEL_ID`.
 
 ## Abelian / QDay
 
-- **Must** for Abelian Foundation Privacy & AI Award: all on-chain flows use QDay.
-- Add network in MetaMask: use "Add QDay & Connect" on the Deposit page (or add manually: RPC and Explorer in `.env.example`).
-- Deploy Escrow contract from `contracts/` to QDay testnet and set `NEXT_PUBLIC_ESCROW_ADDRESS` for real deposit flow.
+All on-chain flows use QDay (Abelian's EVM-compatible, quantum-resistant testnet). To add the network in MetaMask, use the "Add QDay and Connect" button on the Deposit page, or add the RPC and chain ID from `.env.example` manually.
 
-## For judges (hackathon)
-
-- **Demo (2–3 min):** [docs/DEMO_SCRIPT.md](docs/DEMO_SCRIPT.md) — script for live or recorded demo.
-- **Judging checklist:** [docs/JUDGING_CHECKLIST.md](docs/JUDGING_CHECKLIST.md) — how we meet each track’s criteria.
-- **Architecture slide:** [docs/ARCHITECTURE_SLIDE.md](docs/ARCHITECTURE_SLIDE.md) — one-slide text for deck.
-
-**No AWS / no wallet:** Contract Analyzer shows a clear fallback message if Bedrock is not configured. Deposit works in “Simulate” mode without deployed contracts; connect wallet to add QDay and see the flow.
-
-## Demo flow (hackathon)
-
-1. **Landing** → Modules + “Try demo”.
-2. **Contract Analyzer** → “Use sample contract (demo)” → Analyze (Bedrock; no PII). If AWS missing, friendly message is shown.
-3. **Deposit** → “Add QDay & Connect” → “Simulate deposit” → link to QDay Explorer. With deployed Escrow, real deposit works.
-4. **Legal Fund** → Same pattern: connect, simulate or real contribute.
-
-## Docs
-
-- [Abelian Award strategy](docs/ABELIAN_AWARD_STRATEGY.md) — how we meet Privacy creativity, AI implementation, Technical execution, QDay integration.
-- [36h priority](docs/HACKATHON_36H_PRIORITY.md) — build order and risks.
+To enable real on-chain deposits, deploy `contracts/Escrow.sol` to the QDay testnet and set `NEXT_PUBLIC_ESCROW_ADDRESS` in `.env.local`. The same applies to `contracts/LegalFund.sol` and `NEXT_PUBLIC_LEGAL_FUND_ADDRESS`.
 
 ## Stack
 
-- **Frontend:** Next.js 15, TypeScript, Tailwind (adaptive).
-- **AI:** AWS Bedrock AgentCore (InvokeAgent when agent ID set); InvokeModel fallback.
-- **Chain:** QDay (EVM); viem for wallet + contract writes. Contracts: `contracts/Escrow.sol`, `contracts/LegalFund.sol`.
+- Frontend: Next.js 15, TypeScript, Tailwind CSS (responsive)
+- AI: AWS Bedrock AgentCore (InvokeAgent when agent ID is set); InvokeModel fallback
+- Blockchain: Abelian QDay (EVM); viem for wallet connection and contract writes
+- Smart contracts: Solidity — Escrow, LegalFund, CollectiveRentPool, and supporting contracts in `contracts/`
