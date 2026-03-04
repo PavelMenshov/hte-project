@@ -38,7 +38,7 @@ export default async function PropertyPage({ params }: Props) {
             <div className="card p-5">
               <h2
                 className="font-bold text-white"
-                style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+                style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
               >
                 {property.name}
               </h2>
@@ -47,7 +47,7 @@ export default async function PropertyPage({ params }: Props) {
               <div className="mt-4">
                 <StatusBadge status={property.status} />
               </div>
-              <dl className="mt-4 space-y-2 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+              <dl className="mt-4 space-y-2 text-sm" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
                 <div className="flex justify-between">
                   <dt className="text-[var(--color-muted)]">Rooms</dt>
                   <dd>{property.rooms}</dd>

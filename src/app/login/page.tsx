@@ -62,11 +62,11 @@ function LoginForm() {
         <div className="card p-8">
           <h1
             className="section-heading text-2xl font-bold text-white"
-            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
           >
             Sign in
           </h1>
-          <p className="mt-1 text-sm text-[var(--color-muted)]" style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}>
+          <p className="mt-1 text-sm text-[var(--color-muted)]" style={{ fontFamily: "var(--font-dm-mono), ui-monospace, monospace" }}>
             Access your TenantShield account
           </p>
 

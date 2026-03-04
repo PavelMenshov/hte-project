@@ -1,30 +1,31 @@
 import type { Metadata } from "next";
-import { Syne, IBM_Plex_Mono } from "next/font/google";
+import { DM_Serif_Display, DM_Mono } from "next/font/google";
 import NavHeader from "@/components/NavHeader";
 import "./globals.css";
 
-const syne = Syne({
-  variable: "--font-syne",
+const dmSerif = DM_Serif_Display({
+  variable: "--font-dm-serif",
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400"],
+  style: ["normal", "italic"],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-  variable: "--font-ibm-plex-mono",
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
   subsets: ["latin"],
-  weight: ["400", "500", "600"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "TenantShield — Own Hong Kong Real Estate From HKD 1,000",
-  description: "AI selects the best HK co-living properties. We acquire them. You earn 90% of rental income — liquid in minutes. KYC-compliant, SFC professional investor structure. Abelian QDay & AWS Bedrock.",
+  title: "TenantShield — Tokenised Real Estate · Hong Kong",
+  description: "Professional investors own fractional HK real estate from HKD 1,000. AI-selected properties. 90% rental income. Quarterly liquidity. Powered by AWS Bedrock & Abelian QDay.",
 };
 
 export const viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
-  themeColor: "#0a0e1a",
+  themeColor: "#08090d",
 };
 
 export default function RootLayout({
@@ -34,10 +35,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="scroll-smooth">
-      <body className={`${syne.variable} ${ibmPlexMono.variable} antialiased`}>
+      <body className={`${dmSerif.variable} ${dmMono.variable} antialiased`}>
         <a
           href="#main-content"
-          className="sr-only left-4 top-4 z-[100] rounded bg-[var(--color-primary)] px-4 py-2 font-semibold text-[var(--color-bg)] focus:not-sr-only focus:fixed focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--color-primary)]"
+          className="sr-only left-4 top-4 z-[100] rounded bg-[var(--gold)] px-4 py-2 font-semibold text-[var(--bg)] focus:not-sr-only focus:fixed focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-[var(--gold)]"
         >
           Skip to main content
         </a>

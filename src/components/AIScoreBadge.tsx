@@ -2,29 +2,24 @@ type Props = { score: number; max?: number; showLabel?: boolean; className?: str
 
 export default function AIScoreBadge({ score, max = 10, showLabel = true, className = "", animate }: Props) {
   const pct = Math.min(100, (score / max) * 100);
-  const color =
-    score >= 8
-      ? "var(--color-success)"
-      : score >= 6
-        ? "var(--color-warning)"
-        : "var(--color-danger)";
+  const fillColor = "var(--gold)";
 
   return (
     <div className={`flex items-center gap-2 ${className}`}>
-      <div className="h-2 w-24 overflow-hidden rounded-full bg-[var(--color-border)]">
+      <div className="h-2 w-24 overflow-hidden rounded-full bg-[var(--border)]">
         <div
           className={`h-full rounded-full ${animate ? "bar-animated" : ""} transition-all duration-500`}
           style={
             animate
-              ? { ["--bar-target" as string]: `${pct}%`, backgroundColor: color }
-              : { width: `${pct}%`, backgroundColor: color }
+              ? { ["--bar-target" as string]: `${pct}%`, background: `linear-gradient(90deg, var(--gold-dim), var(--gold))` }
+              : { width: `${pct}%`, background: `linear-gradient(90deg, var(--gold-dim), var(--gold))` }
           }
         />
       </div>
       {showLabel && (
         <span
-          className="text-sm font-semibold tabular-nums"
-          style={{ fontFamily: "var(--font-ibm-plex-mono)", color }}
+          className="text-sm font-semibold tabular-nums text-[var(--gold)] bg-[var(--gold)]/10 border border-[var(--gold-dim)] rounded px-1.5 py-0.5"
+          style={{ fontFamily: "var(--font-dm-mono), monospace" }}
         >
           {score.toFixed(1)}/{max}
         </span>

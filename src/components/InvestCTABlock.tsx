@@ -5,7 +5,7 @@ export default function InvestCTABlock() {
     <div className="card border-[var(--color-primary)]/20 p-6 sm:p-8">
       <h3
         className="font-bold text-white"
-        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+        style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
       >
         💡 How to invest in this property
       </h3>

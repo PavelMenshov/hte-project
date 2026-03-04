@@ -44,7 +44,7 @@ export default function MarketDataBanner({ data, loading }: MarketDataBannerProp
             <p className="text-xs text-[var(--color-muted)]">
               {latest?.month ?? "—"} Transactions
             </p>
-            <p className="mt-0.5 font-bold text-white" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <p className="mt-0.5 font-bold text-white" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
               {latest?.totalSales.toLocaleString() ?? "—"} deals
             </p>
             <p className="text-sm text-[var(--color-muted)]">
@@ -53,14 +53,14 @@ export default function MarketDataBanner({ data, loading }: MarketDataBannerProp
           </div>
           <div>
             <p className="text-xs text-[var(--color-muted)]">Market Trend</p>
-            <p className="mt-0.5 font-bold" style={{ color: trendColor, fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <p className="mt-0.5 font-bold" style={{ color: trendColor, fontFamily: "var(--font-dm-mono), monospace" }}>
               {trendArrow} {data.trendPercent > 0 ? "+" : ""}{data.trendPercent}%
             </p>
             <p className="text-sm text-[var(--color-muted)]">vs prev quarter</p>
           </div>
           <div>
             <p className="text-xs text-[var(--color-muted)]">YTD Volume</p>
-            <p className="mt-0.5 font-bold text-white" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <p className="mt-0.5 font-bold text-white" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
               HK${data.yearlyStats.totalValueBillionHKD}B
             </p>
             <p className="text-sm text-[var(--color-muted)]">
@@ -69,7 +69,7 @@ export default function MarketDataBanner({ data, loading }: MarketDataBannerProp
           </div>
         </div>
         {latest && (
-          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+          <div className="mt-4 flex flex-wrap items-center gap-4 text-sm" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
             <span className="text-[var(--color-muted)]">Primary: {latest.primarySales.toLocaleString()}</span>
             <span className="text-[var(--color-border)]">│</span>
             <span className="text-[var(--color-muted)]">Secondary: {latest.secondarySales.toLocaleString()}</span>

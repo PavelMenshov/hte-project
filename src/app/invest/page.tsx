@@ -84,50 +84,55 @@ export default function InvestPage() {
   }
 
   return (
-    <div className="min-h-screen text-[var(--color-text)]">
+    <div className="min-h-screen text-[var(--text)]">
       <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
         <h1
-          className="section-heading text-4xl font-bold text-white"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          className="section-heading text-4xl font-bold text-[var(--text)]"
+          style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
         >
           Invest in the Portfolio — not in one property.
         </h1>
-        <p className="mt-2 text-[var(--color-muted)]">
+        <p className="mt-2 text-[var(--text-2)]">
           Buy Tenantshield tokens. Earn 90% of net rental income. Token grows with portfolio NAV.
         </p>
 
-        <p className="mt-4 text-sm text-[var(--color-muted)]">
-          Currency flow: USD / HKD / EUR → USDC/USDT → Real Estate Token
+        <p className="mt-4 text-sm text-[var(--text-2)]">
+          Currency flow: USD / HKD / EUR  →  USDC / USDT  →  Real Estate Token
         </p>
 
         <div className="mt-10 space-y-8">
           <InvestmentCalculator onSimulate={handleSimulate} />
 
           <div className="card p-6">
-            <h3 className="font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+            <h3 className="font-bold text-[var(--text)]" style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}>
               🔒 Powered by Abelian QDay
             </h3>
             <div className="mt-4">
               <button
                 type="button"
                 onClick={() => setWalletConnected(!walletConnected)}
-                className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] py-3 px-4 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition"
+                className="w-full rounded border border-[var(--border)] bg-[var(--surface)] py-3 px-4 text-sm font-medium text-[var(--text)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition"
               >
                 {walletConnected ? "Disconnect QDay Wallet" : "Connect QDay Wallet"}
               </button>
             </div>
-            <p className="mt-3 text-xs text-[var(--color-muted)]">
+            <p className="mt-3 text-xs text-[var(--text-2)]">
               Quantum-resistant EVM chain. Real Estate Tokens are security tokens for Professional Investors; KYC is required per SFC framework.
             </p>
           </div>
         </div>
 
         {securing && (
-          <div className="card mt-8 border-[var(--color-primary)]/30 p-6 text-center">
-            <p className="text-[var(--color-primary)] font-medium">{SECURING_STEPS[securingStep]}</p>
-            <div className="mt-4 h-1 rounded-full bg-[var(--color-border)] overflow-hidden">
+          <div className="card mt-8 border-[var(--gold)]/30 p-6 text-center">
+            <p className="text-[var(--gold)] font-medium">{SECURING_STEPS[securingStep]}</p>
+            <div className="mt-4 flex justify-center gap-1">
+              <span className="h-2 w-2 rounded-full bg-[var(--gold)] animate-pulse" style={{ animationDuration: "1s" }} />
+              <span className="h-2 w-2 rounded-full bg-[var(--gold)] animate-pulse" style={{ animationDelay: "0.2s", animationDuration: "1s" }} />
+              <span className="h-2 w-2 rounded-full bg-[var(--gold)] animate-pulse" style={{ animationDelay: "0.4s", animationDuration: "1s" }} />
+            </div>
+            <div className="mt-4 h-1 rounded-full bg-[var(--border)] overflow-hidden">
               <div
-                className="h-full bg-[var(--color-primary)] transition-all duration-[2500ms] ease-linear rounded-full"
+                className="h-full bg-[var(--gold)] transition-all duration-[2500ms] ease-linear rounded-full"
                 style={{ width: securing ? "100%" : "0%" }}
               />
             </div>
@@ -135,12 +140,12 @@ export default function InvestPage() {
         )}
 
         {purchaseResult && !securing && (
-          <div className="card mt-8 border-[var(--color-success)]/30 p-6 animate-fade-in-up relative overflow-hidden">
+          <div className="card mt-8 border-[var(--success)]/30 p-6 animate-fade-up relative overflow-hidden">
             <div className="absolute inset-0 pointer-events-none" aria-hidden>
               {[...Array(8)].map((_, i) => {
                 const tx = (i % 2 === 0 ? 1 : -1) * (40 + (i * 7) % 40);
                 const ty = -20 - (i * 10) % 60;
-                const colors = ["var(--color-primary)", "var(--color-secondary)", "var(--color-success)"];
+                const colors = ["var(--gold)", "var(--gold-bright)", "var(--success)"];
                 return (
                   <div
                     key={i}
@@ -155,29 +160,29 @@ export default function InvestPage() {
                 );
               })}
             </div>
-            <h3 className="font-bold text-[var(--color-success)] relative z-10">✓ Transaction confirmed</h3>
-            <dl className="mt-4 space-y-2 text-sm relative z-10" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <h3 className="font-bold text-[var(--success)] relative z-10">✓ Transaction confirmed</h3>
+            <dl className="mt-4 space-y-2 text-sm relative z-10" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Transaction ID</dt>
+                <dt className="text-[var(--text-2)]">Transaction ID</dt>
                 <dd className="truncate max-w-[200px]" title={purchaseResult.transactionHash}>{purchaseResult.transactionHash}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Tokens received</dt>
+                <dt className="text-[var(--text-2)]">Tokens received</dt>
                 <dd>{purchaseResult.tokensReceived}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-[var(--color-muted)]">Amount</dt>
+                <dt className="text-[var(--text-2)]">Amount</dt>
                 <dd>HKD {purchaseResult.amountHkd.toLocaleString()}</dd>
               </div>
             </dl>
-            <p className="mt-4 text-xs text-[var(--color-muted)] relative z-10">
+            <p className="mt-4 text-xs text-[var(--text-2)] relative z-10">
               Your tokens = a share of the entire TenantShield portfolio. First payout: next quarter.
             </p>
           </div>
         )}
 
-        <p className="mt-10 text-xs text-[var(--color-muted)] max-w-2xl">
-          TenantShield tokens are security tokens offered to Professional Investors only as defined under the Securities and Futures Ordinance (Cap. 571). This is not an offer to retail investors.
+        <p className="mt-8 text-center text-xs text-[var(--text-3)] max-w-lg mx-auto leading-relaxed">
+          TenantShield tokens are security tokens offered exclusively to Professional Investors as defined under the Securities and Futures Ordinance (Cap. 571). This does not constitute an offer to retail investors or any person in a jurisdiction where such offering is not permitted.
         </p>
       </div>
     </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useScrollReveal } from "@/lib/useScrollReveal";
 import { useLiveCounter } from "@/lib/useCounter";
 
@@ -38,6 +38,31 @@ function useRandomTargets() {
   return targets;
 }
 
+type StatBlockProps = {
+  value: React.ReactNode;
+  label: string;
+  pop: boolean;
+};
+
+function StatBlock({ value, label, pop }: StatBlockProps) {
+  return (
+    <div className="flex flex-col items-center sm:flex-row sm:items-center gap-1 text-center sm:text-left">
+      <span
+        className={`text-4xl font-normal text-[var(--gold-bright)] ${pop ? "counter-pop" : ""}`}
+        style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
+      >
+        {value}
+      </span>
+      <span
+        className="text-xs uppercase tracking-widest text-[var(--text-2)]"
+        style={{ fontFamily: "var(--font-dm-mono), monospace" }}
+      >
+        {label}
+      </span>
+    </div>
+  );
+}
+
 export default function PortfolioStats() {
   const [ref, isVisible] = useScrollReveal("visible", 0.15);
   const targets = useRandomTargets();
@@ -46,43 +71,45 @@ export default function PortfolioStats() {
   const score = useLiveCounter(isVisible ? targets.score : 0, 1200, 1, isVisible);
   const investors = useLiveCounter(isVisible ? targets.investors : 0, 1200, 0, isVisible);
 
+  const [pop, setPop] = useState(false);
+  const prevValues = useRef({ value: 0, properties: 0, score: 0, investors: 0 });
+
+  useEffect(() => {
+    const changed =
+      value !== prevValues.current.value ||
+      properties !== prevValues.current.properties ||
+      score !== prevValues.current.score ||
+      investors !== prevValues.current.investors;
+    if (changed && isVisible) {
+      prevValues.current = { value, properties, score, investors };
+      setPop(true);
+      const t = setTimeout(() => setPop(false), 300);
+      return () => clearTimeout(t);
+    }
+  }, [value, properties, score, investors, isVisible]);
+
+  const stats = [
+    { value: formatHKD(value), label: "Portfolio value" },
+    { value: Math.round(properties), label: "Properties" },
+    { value: `${score.toFixed(1)}/10`, label: "Avg AI score" },
+    { value: Math.round(investors), label: "Investors" },
+  ];
+
   return (
-    <section className="border-y border-[var(--color-border)] bg-[var(--color-surface)]/50 py-12" ref={ref as React.RefObject<HTMLElement>}>
+    <section
+      ref={ref as React.RefObject<HTMLElement>}
+      className="border-y border-[var(--border)] bg-[var(--bg-2)] py-12 border-t-[1px] border-t-[var(--gold)]"
+    >
       <div className="mx-auto max-w-5xl px-4 sm:px-6">
-        <h2
-          className="section-heading mb-8 text-2xl font-bold text-white"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-        >
-          Live portfolio
-        </h2>
-        <div className="flex flex-wrap justify-center gap-12">
-          <div className="text-center">
-            <div className="counter-value text-2xl font-bold text-[var(--color-primary)] sm:text-3xl">
-              {formatHKD(value)}
+        <div className="grid grid-cols-2 gap-8 sm:flex sm:flex-row sm:flex-wrap sm:items-center sm:justify-center sm:gap-0">
+          {stats.map((s, i) => (
+            <div key={s.label} className={`flex justify-center sm:flex-1 ${i < 3 ? "sm:border-r sm:border-[var(--gold)]/40 sm:pr-8" : "sm:pl-8"}`}>
+              <StatBlock value={s.value} label={s.label} pop={pop} />
             </div>
-            <div className="mt-1 text-sm text-[var(--color-text)]">Portfolio value</div>
-          </div>
-          <div className="text-center">
-            <div className="counter-value text-2xl font-bold text-[var(--color-primary)] sm:text-3xl">
-              {Math.round(properties)}
-            </div>
-            <div className="mt-1 text-sm text-[var(--color-text)]">Properties</div>
-          </div>
-          <div className="text-center">
-            <div className="counter-value text-2xl font-bold text-[var(--color-primary)] sm:text-3xl">
-              {score.toFixed(1)}/10
-            </div>
-            <div className="mt-1 text-sm text-[var(--color-text)]">Avg AI score</div>
-          </div>
-          <div className="text-center">
-            <div className="counter-value text-2xl font-bold text-[var(--color-primary)] sm:text-3xl">
-              {Math.round(investors)}
-            </div>
-            <div className="mt-1 text-sm text-[var(--color-text)]">Investors</div>
-          </div>
+          ))}
         </div>
-        <p className="mt-6 text-center text-xs text-[var(--color-muted)]">
-          Values update dynamically based on company-collected data.
+        <p className="mt-8 text-center text-xs text-[var(--text-3)]" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
+          Platform data · Updated in real-time
         </p>
       </div>
     </section>

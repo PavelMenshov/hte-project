@@ -57,14 +57,14 @@ export default function PropertyAICard({ property }: Props) {
 
   return (
     <>
-      <div ref={cardRef as React.RefObject<HTMLDivElement>} className="card p-6">
+      <div ref={cardRef as React.RefObject<HTMLDivElement>} className="card p-6 rounded-[4px] transition-[border-color] duration-200 hover:border-l-[3px] hover:border-l-[var(--gold)]">
         <h3
-          className="font-bold text-white"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          className="font-bold text-[var(--text)]"
+          style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
         >
           🤖 AI Acquisition Analysis
         </h3>
-        <p className="mt-1 text-xs text-[var(--color-muted)]">Powered by AWS Bedrock AgentCore</p>
+        <p className="mt-1 text-xs text-[var(--text-2)]">Powered by AWS Bedrock AgentCore</p>
         <div className="mt-4 flex items-center gap-4">
           <span className={`text-lg font-bold ${recommendationColor(recommendation)}`}>
             RECOMMENDATION: {recommendation}
@@ -74,7 +74,7 @@ export default function PropertyAICard({ property }: Props) {
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
             <span className="text-[var(--color-muted)]">Yield</span>
-            <span className="ml-2 font-mono text-[var(--color-primary)]">{property.net_yield_pct.toFixed(1)}%/yr</span>
+            <span className="ml-2 font-mono text-[var(--gold)]">{property.net_yield_pct.toFixed(1)}%/yr</span>
           </div>
           <div className="rounded bg-[var(--color-bg)]/50 px-3 py-2 text-sm">
             <span className="text-[var(--color-muted)]">Growth</span>
@@ -89,14 +89,14 @@ export default function PropertyAICard({ property }: Props) {
           <p className="text-xs text-[var(--color-muted)] uppercase tracking-wide">Score breakdown</p>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {[
-              { label: "Location", pct: locationPct, color: "var(--color-primary)" },
-              { label: "Yield", pct: yieldPct, color: "var(--color-success)" },
-              { label: "Growth", pct: growthBarPct, color: "var(--color-secondary)" },
-              { label: "Risk", pct: riskBarPct, color: "var(--color-warning)" },
+              { label: "Location", pct: locationPct, color: "var(--gold)" },
+              { label: "Yield", pct: yieldPct, color: "var(--success)" },
+              { label: "Growth", pct: growthBarPct, color: "var(--gold-bright)" },
+              { label: "Risk", pct: riskBarPct, color: "var(--warning)" },
             ].map((item, i) => (
               <div key={item.label} className="space-y-1">
-                <span className="text-xs text-[var(--color-muted)]">{item.label}</span>
-                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
+                <span className="text-xs text-[var(--text-2)]">{item.label}</span>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--border)]">
                   <div
                     className={`h-full rounded-full ${barsVisible ? `bar-animated ${i === 1 ? "bar-delay-1" : i === 2 ? "bar-delay-2" : i === 3 ? "bar-delay-3" : ""}` : ""}`}
                     style={barsVisible ? { ["--bar-target" as string]: `${item.pct}%`, backgroundColor: item.color } : { width: `${item.pct}%`, backgroundColor: item.color }}
@@ -108,8 +108,8 @@ export default function PropertyAICard({ property }: Props) {
         </div>
         {property.ai_buy_reasons.length > 0 && (
           <div className="mt-4">
-            <h4 className="text-sm font-semibold text-[var(--color-success)]">Why AI recommended {recommendation}:</h4>
-            <ul className="mt-2 space-y-1 text-sm text-[var(--color-text)]">
+            <h4 className="text-sm font-semibold text-[var(--success)]">Why AI recommended {recommendation}:</h4>
+            <ul className="mt-2 space-y-1 text-sm text-[var(--text)]">
               {property.ai_buy_reasons.map((r, i) => (
                 <li key={i}>✅ {r}</li>
               ))}
@@ -119,7 +119,7 @@ export default function PropertyAICard({ property }: Props) {
         {property.ai_concerns.length > 0 && (
           <div className="mt-3">
             <h4 className="text-sm font-semibold text-[var(--color-warning)]">Concerns:</h4>
-            <ul className="mt-2 space-y-1 text-sm text-[var(--color-muted)]">
+            <ul className="mt-2 space-y-1 text-sm text-[var(--text-2)]">
               {property.ai_concerns.map((c, i) => (
                 <li key={i}>⚠️ {c}</li>
               ))}
@@ -128,8 +128,8 @@ export default function PropertyAICard({ property }: Props) {
         )}
         {property.ai_rejected_alternatives.length > 0 && (
           <div className="mt-3">
-            <h4 className="text-sm font-semibold text-[var(--color-muted)]">Properties AI rejected (same period):</h4>
-            <ul className="mt-2 space-y-1 text-sm text-[var(--color-muted)]">
+            <h4 className="text-sm font-semibold text-[var(--text-2)]">Properties AI rejected (same period):</h4>
+            <ul className="mt-2 space-y-1 text-sm text-[var(--text-2)]">
               {property.ai_rejected_alternatives.map((a, i) => (
                 <li key={i}>❌ {a.description} — {a.reason}</li>
               ))}

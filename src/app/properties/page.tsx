@@ -111,40 +111,40 @@ export default function PropertiesPage() {
   }, []);
 
   return (
-    <div className="min-h-screen text-[var(--color-text)]">
+    <div className="min-h-screen text-[var(--text)]">
       <MarketDataBanner data={marketData} loading={marketLoading} />
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <h1
-          className="section-heading text-4xl font-bold text-white"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          className="section-heading text-4xl font-bold text-[var(--text)]"
+          style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
         >
           Our AI-Curated Portfolio
         </h1>
-        <p className="mt-2 text-[var(--color-muted)]">
+        <p className="mt-2 text-[var(--text-2)]">
           See why we chose each property
         </p>
 
         <div className="mt-8 flex flex-wrap items-center gap-4">
-          <span className="text-sm text-[var(--color-muted)]">Filter:</span>
+          <span className="text-sm text-[var(--text-2)]">Filter:</span>
           {(["all", "in_portfolio", "analyzing", "rejected", "from_market"] as const).map((f) => (
             <button
               key={f}
               type="button"
               onClick={() => setFilter(f)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+              className={`rounded px-4 py-2 text-sm font-medium transition ${
                 filter === f
-                  ? "bg-[var(--color-primary)] text-[var(--color-bg)]"
-                  : "bg-[var(--color-surface)] text-[var(--color-muted)] hover:text-[var(--color-primary)] border border-[var(--color-border)]"
+                  ? "bg-[var(--gold)] text-[var(--bg)]"
+                  : "bg-[var(--surface)] text-[var(--text-2)] hover:text-[var(--gold)] border border-[var(--border)]"
               }`}
             >
               {({ all: "All", in_portfolio: "In Portfolio", analyzing: "Analyzing", rejected: "Rejected", from_market: "From market" } as const)[f]}
             </button>
           ))}
-          <span className="ml-4 text-sm text-[var(--color-muted)]">Sort:</span>
+          <span className="ml-4 text-sm text-[var(--text-2)]">Sort:</span>
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as Sort)}
-            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm text-[var(--color-text)]"
+            className="rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--text)]"
           >
             <option value="score">AI Score</option>
             <option value="yield">Yield</option>
@@ -187,15 +187,15 @@ export default function PropertiesPage() {
                 <nav className="mt-10 flex flex-wrap items-center justify-center gap-2" aria-label="Pagination">
                   <span className="w-full text-center text-sm text-[var(--color-muted)] sm:w-auto">
                     {filtered.length > 0
-                      ? `${currentPage * PER_PAGE + 1}–${Math.min((currentPage + 1) * PER_PAGE, filtered.length)} of ${filtered.length}`
-                      : "0 properties"}
-                  </span>
-                  <div className="flex items-center gap-1">
+                  ? `${currentPage * PER_PAGE + 1}–${Math.min((currentPage + 1) * PER_PAGE, filtered.length)} of ${filtered.length}`
+                  : "0 properties"}
+              </span>
+              <div className="flex items-center gap-1">
                     <button
                       type="button"
                       onClick={() => setPage((p) => Math.max(0, p - 1))}
                       disabled={currentPage === 0}
-                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50 disabled:pointer-events-none"
+                      className="rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text)] hover:border-[var(--gold)] hover:text-[var(--gold)] disabled:opacity-50 disabled:pointer-events-none"
                     >
                       ← Prev
                     </button>
@@ -204,10 +204,10 @@ export default function PropertiesPage() {
                         key={i}
                         type="button"
                         onClick={() => setPage(i)}
-                        className={`min-w-[2.25rem] rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                        className={`min-w-[2.25rem] rounded border px-3 py-2 text-sm font-medium transition ${
                           i === currentPage
-                            ? "border-[var(--color-primary)] bg-[var(--color-primary)]/20 text-[var(--color-primary)]"
-                            : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+                            ? "border-[var(--gold)] bg-[var(--gold)]/20 text-[var(--gold)]"
+                            : "border-[var(--border)] bg-[var(--surface)] text-[var(--text)] hover:border-[var(--gold)] hover:text-[var(--gold)]"
                         }`}
                       >
                         {i + 1}
@@ -217,7 +217,7 @@ export default function PropertiesPage() {
                       type="button"
                       onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                       disabled={currentPage >= totalPages - 1}
-                      className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50 disabled:pointer-events-none"
+                      className="rounded border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--text)] hover:border-[var(--gold)] hover:text-[var(--gold)] disabled:opacity-50 disabled:pointer-events-none"
                     >
                       Next →
                     </button>
@@ -228,33 +228,33 @@ export default function PropertiesPage() {
           )}
         </div>
 
-        <div className="mt-12 w-full border-t border-[var(--color-border)] bg-[var(--color-surface)] px-4 py-4 sm:px-6">
-          <p className="mx-auto max-w-6xl text-center text-sm text-[var(--color-muted)]">
-            These properties are owned by Tenantshield SPV — not by individual investors. Buying tokens means investing in the full portfolio.{" "}
-            <Link href="/about" className="text-[var(--color-primary)] hover:underline">
+        <div className="mt-12 w-full border-t border-[var(--border)] bg-[var(--surface)] px-4 py-4 sm:px-6">
+          <p className="mx-auto max-w-6xl text-center text-sm text-[var(--text-2)]">
+            These properties are owned by TenantShield SPV — not by individual investors. Buying tokens means investing in the full portfolio.{" "}
+            <Link href="/about" className="text-[var(--gold)] hover:underline">
               Why this model? →
             </Link>
           </p>
         </div>
         <div className="mx-auto max-w-6xl px-4 pb-8 pt-4 text-center sm:px-6">
-          <Link href="/invest" className="btn-primary inline-flex rounded-full px-6 py-3 text-sm">
-            Buy Tenantshield Tokens →
+          <Link href="/invest" className="btn-primary inline-flex px-6 py-3">
+            Invest
           </Link>
         </div>
 
         <div className="mx-auto max-w-2xl border-t border-[var(--color-border)] px-4 py-12 text-center sm:px-6">
           <h2
-            className="text-xl font-bold text-white sm:text-2xl"
-            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            className="text-xl font-bold text-[var(--text)] sm:text-2xl"
+            style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
           >
             Not finding what you need? Join the waitlist.
           </h2>
-          <p className="mt-2 text-sm text-[var(--color-muted)]">
+          <p className="mt-2 text-sm text-[var(--text-2)]">
             Tell us your preferences — we&apos;ll notify you when a matching room opens up in our portfolio.
           </p>
           <Link
             href="/register"
-            className="btn-primary mt-6 inline-flex rounded-full px-6 py-3 text-sm"
+            className="btn-primary mt-6 inline-flex px-6 py-3"
           >
             Join waitlist
           </Link>

@@ -1,60 +1,88 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import Link from "next/link";
 
 export default function HeroSection() {
-  const heroRef = useRef<HTMLElement | null>(null);
-
-  useEffect(() => {
-    const el = heroRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      el.style.backgroundPositionY = `${window.scrollY * 0.3}px`;
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  function scrollToHow() {
+    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+  }
 
   return (
-    <section
-      ref={heroRef as React.RefObject<HTMLElement>}
-      className="hero-grid relative flex min-h-[100dvh] flex-col justify-center px-4 pb-20 pt-8 sm:px-6"
-    >
-      <div className="mx-auto max-w-5xl animate-fade-in-down">
+    <section className="hero-grid relative flex min-h-[100dvh] flex-col justify-center px-4 pb-20 pt-8 sm:px-6">
+      {/* Subtle radial gradient blob — top-right, gold tint */}
+      <div
+        className="pointer-events-none fixed top-0 right-0 w-[600px] h-[600px] rounded-full opacity-[0.06]"
+        style={{ background: "radial-gradient(circle, var(--gold) 0%, transparent 70%)" }}
+        aria-hidden
+      />
+
+      <div className="relative z-10 mx-auto max-w-5xl w-full">
+        <span className="badge badge-gold animate-slide-right inline-block">
+          🏙 Hong Kong · Professional Investors Only
+        </span>
+
         <h1
-          className="whitespace-pre-line text-5xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl md:text-7xl"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          className="mt-6 text-6xl font-normal leading-[1.0] tracking-tight sm:text-7xl md:text-8xl"
+          style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
         >
-          Own Hong Kong Real Estate.{"\n"}From HKD 1,000.
+          <span className="animate-fade-in-down block text-[var(--text)]">Own Hong Kong</span>
+          <span className="animate-fade-in-down block text-[var(--gold)] italic">Real Estate.</span>
+          <span className="animate-fade-in-down block text-[var(--text)]">From HKD 1,000.</span>
         </h1>
+
         <p
-          className="mt-6 max-w-xl animate-fade-in-down-delay-1 text-base text-[var(--color-muted)]"
-          style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}
+          className="mt-6 max-w-lg text-sm leading-relaxed text-[var(--text-2)] animate-fade-in-down-delay-1"
+          style={{ fontFamily: "var(--font-dm-mono), monospace" }}
         >
-          AI selects the best HK co-living properties. We acquire them. You earn 90% of rental income — liquid in minutes, not months.
+          AI selects the best HK properties. We acquire them via SPV. You earn 90% of net rental income — liquid quarterly, not locked for decades.
         </p>
+
         <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-down-delay-2">
-          <Link href="/properties" className="btn-primary inline-flex rounded-full px-8 py-4 text-sm">
+          <Link href="/properties" className="btn-primary inline-flex px-8 py-4">
             Explore Properties
           </Link>
+          <button type="button" onClick={scrollToHow} className="btn-outline px-8 py-4">
+            How It Works
+          </button>
+        </div>
+
+        <div className="mt-16 flex flex-wrap items-center gap-8 text-xs uppercase tracking-widest animate-fade-up-d3" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+            <span className="text-[var(--text-2)]">Min</span>
+            <span className="font-semibold text-[var(--gold)]">HKD 1,000</span>
+          </div>
+          <div className="h-4 w-px bg-[var(--border)] hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+            <span className="text-[var(--text-2)]">Rental yield</span>
+            <span className="font-semibold text-[var(--gold)]">90%</span>
+          </div>
+          <div className="h-4 w-px bg-[var(--border)] hidden sm:block" />
+          <div className="flex items-center gap-2">
+            <span className="h-1.5 w-1.5 rounded-full bg-[var(--gold)]" />
+            <span className="text-[var(--text-2)]">Liquidity</span>
+            <span className="font-semibold text-[var(--gold)]">Quarterly</span>
+          </div>
+        </div>
+
+        <div className="mt-12 flex justify-center animate-fade-up-d4">
           <a
             href="#how-it-works"
-            className="inline-flex rounded-full border-2 border-[var(--color-border)] bg-transparent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-[var(--color-text)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
+            onClick={(e) => {
+              e.preventDefault();
+              scrollToHow();
+            }}
+            className="inline-flex flex-col items-center gap-1 text-[var(--gold)] transition hover:opacity-80"
+            aria-label="Scroll to How it works"
           >
-            How It Works
+            <span className="text-xs uppercase tracking-widest" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
+              Scroll
+            </span>
+            <svg className="h-6 w-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
           </a>
-        </div>
-        <div className="mt-8 flex flex-wrap gap-4 animate-fade-in-up-d1">
-          <span className="rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
-            HKD 1,000 minimum
-          </span>
-          <span className="animate-fade-in-up-d2 rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
-            ~15 min liquidity
-          </span>
-          <span className="animate-fade-in-up-d3 rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
-            90% rental yield
-          </span>
         </div>
       </div>
     </section>

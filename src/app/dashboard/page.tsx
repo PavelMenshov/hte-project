@@ -57,7 +57,7 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
         <h1
           className="section-heading text-4xl font-bold text-white"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+          style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
         >
           My Tenantshield Portfolio
         </h1>
@@ -65,7 +65,7 @@ export default function DashboardPage() {
         <div className="mt-8 grid gap-6 lg:grid-cols-3">
           <div className="card p-6 lg:col-span-2">
             <h2 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wide">Summary</h2>
-            <dl className="mt-4 grid gap-4 sm:grid-cols-2" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+            <dl className="mt-4 grid gap-4 sm:grid-cols-2" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
               <div>
                 <dt className="text-xs text-[var(--color-muted)]">Tokens held</dt>
                 <dd className="counter-value text-2xl font-bold text-[var(--color-primary)]">{Math.round(counterTokens)}</dd>
@@ -117,7 +117,7 @@ export default function DashboardPage() {
 
         <div ref={tableRef as React.RefObject<HTMLDivElement>} className="card mt-8 overflow-x-auto p-6 stagger-reveal">
           <h2 className="text-sm font-semibold text-[var(--color-muted)] uppercase tracking-wide">Payout history</h2>
-          <table className="mt-4 w-full text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+          <table className="mt-4 w-full text-sm" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
             <thead>
               <tr className="border-b border-[var(--color-border)] text-left text-[var(--color-muted)]">
                 <th className="pb-2">Date</th>

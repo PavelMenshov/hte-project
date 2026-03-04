@@ -39,19 +39,19 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing, animate
   return (
     <Link
       href={`/properties/${id}`}
-      className="card card-hover group block overflow-hidden animate-fade-in-up"
+      className="card group block overflow-hidden rounded-[4px] transition-[border-color,box-shadow] duration-200 hover:border-l-[3px] hover:border-l-[var(--gold)] animate-fade-up"
     >
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
           <h3
-            className="font-bold text-white line-clamp-1 flex-1"
-            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            className="font-bold text-[var(--text)] line-clamp-1 flex-1"
+            style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
           >
             {name}
           </h3>
           <StatusBadge status={status} />
         </div>
-        <p className="mt-1 text-sm text-[var(--color-muted)]">
+        <p className="mt-1 text-sm text-[var(--text-2)]">
           📍 {district}, {address.split(",")[0]}
         </p>
         <div className="mt-4 flex items-center justify-between gap-2">
@@ -59,24 +59,24 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing, animate
           <span
             className="text-xs font-medium uppercase"
             style={{
-              fontFamily: "var(--font-ibm-plex-mono)",
+              fontFamily: "var(--font-dm-mono), monospace",
               color: recommendationColor(ai_recommendation),
             }}
           >
             {ai_recommendation}
           </span>
         </div>
-        <div className="mt-3 flex flex-wrap gap-3 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
-          <span className="text-[var(--color-muted)]">Net yield:</span>
-          <span className="text-[var(--color-primary)]">{net_yield_pct.toFixed(1)}%/yr</span>
-          <span className="text-[var(--color-muted)]">·</span>
-          <span className="text-[var(--color-muted)]">AI growth:</span>
+        <div className="mt-3 flex flex-wrap gap-3 text-sm" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
+          <span className="text-[var(--text-2)]">Net yield:</span>
+          <span className="text-[var(--gold)]">{net_yield_pct.toFixed(1)}%/yr</span>
+          <span className="text-[var(--text-2)]">·</span>
+          <span className="text-[var(--text-2)]">AI growth:</span>
           <span>+{ai_growth_forecast_pct.toFixed(1)}%/yr</span>
-          <span className="text-[var(--color-muted)]">·</span>
+          <span className="text-[var(--text-2)]">·</span>
           <span>Risk: {risk_level}</span>
         </div>
         {status === "in_portfolio" && acquired_date && acquired_price_hkd != null && current_valuation_hkd != null && (
-          <p className="mt-2 text-xs text-[var(--color-muted)]">
+          <p className="mt-2 text-xs text-[var(--text-2)]">
             Acquired {acquired_date} · {formatHKD(acquired_price_hkd)} → {formatHKD(current_valuation_hkd)} (
             {(((current_valuation_hkd - acquired_price_hkd) / acquired_price_hkd) * 100).toFixed(1)}%)
           </p>
@@ -90,12 +90,12 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing, animate
               onAnalyze(property);
             }}
             disabled={isAnalyzing}
-            className="mt-3 w-full rounded-lg border border-[var(--color-primary)] bg-transparent px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition hover:bg-[var(--color-primary)]/10 disabled:opacity-50"
+            className="mt-3 w-full rounded border border-[var(--gold)] bg-transparent px-3 py-2 text-sm font-medium text-[var(--gold)] transition hover:bg-[var(--gold)]/10 disabled:opacity-50"
           >
             {isAnalyzing ? "Analyzing…" : "Run AI analysis"}
           </button>
         )}
-        <p className="mt-3 text-sm font-medium text-[var(--color-primary)] group-hover:underline">
+        <p className="mt-3 text-sm font-medium text-[var(--gold)] group-hover:underline">
           Full AI Report ↓
         </p>
       </div>

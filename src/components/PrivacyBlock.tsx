@@ -3,7 +3,7 @@ export default function PrivacyBlock() {
     <div className="card border-[var(--color-secondary)]/30 p-6">
       <h3
         className="font-bold text-[var(--color-secondary)]"
-        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+        style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
       >
         🔐 Your Privacy is Protected by Quantum-Resistant Technology
       </h3>

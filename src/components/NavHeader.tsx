@@ -2,8 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { useRouter, usePathname } from "next/navigation";
-import { getSession, clearSession, type AuthUser } from "@/lib/auth";
+import { usePathname } from "next/navigation";
 
 const NAV_LINKS = [
   { href: "/properties", label: "Properties" },
@@ -14,13 +13,15 @@ const NAV_LINKS = [
 
 export default function NavHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
-  const router = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
-    queueMicrotask(() => setUser(getSession()));
+    const onScroll = () => setScrolled(typeof window !== "undefined" ? window.scrollY > 60 : false);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -33,130 +34,88 @@ export default function NavHeader() {
     return () => document.removeEventListener("click", handleClickOutside);
   }, []);
 
-  function handleLogout() {
-    clearSession();
-    setUser(null);
-    setMenuOpen(false);
-    router.push("/login");
-  }
+  const navLinkClass = (href: string) => {
+    const isActive = pathname === href || pathname.startsWith(href + "/");
+    return `text-xs uppercase tracking-widest transition-colors duration-200 ${
+      isActive ? "text-[var(--gold)] border-b border-[var(--gold)] pb-0.5" : "text-[var(--text-2)] hover:text-[var(--gold)]"
+    }`;
+  };
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-bg)]/80 backdrop-blur-md">
+    <header
+      ref={headerRef}
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? "bg-[var(--bg-2)]/95 backdrop-blur-md border-b border-[var(--border)]"
+          : "bg-transparent border-b border-transparent"
+      }`}
+    >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
-        <Link
-          href="/"
-          className="font-bold tracking-tight text-[var(--color-primary)]"
-          style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
-        >
-          TENANTSHIELD
+        <Link href="/" className="flex items-center gap-3" aria-label="TenantShield home">
+          <span
+            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded bg-[var(--gold)] text-sm font-bold text-[var(--bg)]"
+            style={{ fontFamily: "var(--font-dm-mono), monospace" }}
+          >
+            TS
+          </span>
+          <span
+            className="font-semibold tracking-widest text-[var(--text)] text-xs uppercase hidden sm:inline"
+            style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
+          >
+            TENANTSHIELD
+          </span>
         </Link>
-        <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
-          {NAV_LINKS.map(({ href, label }) => {
-            const isActive = pathname === href || pathname.startsWith(href + "/");
-            return (
-              <Link
-                key={href}
-                href={href}
-                className={`relative rounded-lg px-3 py-2 text-sm font-medium transition hover:text-[var(--color-primary)] ${
-                  isActive ? "text-[var(--color-primary)] nav-link-active" : "text-[var(--color-muted)]"
-                }`}
-              >
-                {label}
-              </Link>
-            );
-          })}
-          {user == null ? (
-            <>
-              <Link
-                href="/login"
-                className="text-sm font-medium text-[var(--color-muted)] transition hover:text-[var(--color-primary)]"
-              >
-                Sign in
-              </Link>
-              <Link
-                href="/register"
-                className="btn-primary rounded-full px-4 py-2 text-sm"
-              >
-                Register
-              </Link>
-            </>
-          ) : (
-            <>
-              <span className="text-sm text-[var(--color-muted)]">
-                Hi, {user.name.split(" ")[0]}
-              </span>
-              <button
-                type="button"
-                onClick={handleLogout}
-                className="btn-primary rounded-full px-4 py-2 text-sm"
-              >
-                Logout
-              </button>
-            </>
-          )}
+
+        <nav className="hidden md:flex items-center gap-8" aria-label="Main navigation">
+          {NAV_LINKS.map(({ href, label }) => (
+            <Link key={href} href={href} className={navLinkClass(href)} style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
+              {label}
+            </Link>
+          ))}
         </nav>
+
+        <div className="hidden md:flex items-center gap-3">
+          <button type="button" className="btn-outline px-5 py-2.5">
+            Connect Wallet
+          </button>
+          <Link href="/invest" className="btn-primary px-6 py-2.5">
+            Invest Now
+          </Link>
+        </div>
+
         <button
           type="button"
-          className="md:hidden flex flex-col justify-center items-center w-8 h-8 gap-1.5"
+          className="md:hidden flex flex-col justify-center items-center w-10 h-10 gap-1.5"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
         >
-          <span
-            className={`block w-6 h-0.5 bg-[var(--color-text)] transition-all duration-200 ${menuOpen ? "rotate-45 translate-y-2" : ""}`}
-          />
-          <span
-            className={`block w-6 h-0.5 bg-[var(--color-text)] transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`}
-          />
-          <span
-            className={`block w-6 h-0.5 bg-[var(--color-text)] transition-all duration-200 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`}
-          />
+          <span className={`block w-6 h-0.5 bg-[var(--text)] transition-all duration-200 ${menuOpen ? "rotate-45 translate-y-2" : ""}`} />
+          <span className={`block w-6 h-0.5 bg-[var(--text)] transition-all duration-200 ${menuOpen ? "opacity-0" : ""}`} />
+          <span className={`block w-6 h-0.5 bg-[var(--text)] transition-all duration-200 ${menuOpen ? "-rotate-45 -translate-y-2" : ""}`} />
         </button>
       </div>
+
       {menuOpen && (
-        <div className="border-t border-[var(--color-border)] bg-[var(--color-bg)]/95 backdrop-blur-md py-4 px-4 flex flex-col gap-2">
+        <div className="border-t border-[var(--border)] bg-[var(--bg-2)]/98 backdrop-blur-md py-4 px-4 flex flex-col gap-1 md:hidden">
           {NAV_LINKS.map(({ href, label }) => (
             <Link
               key={href}
               href={href}
               onClick={() => setMenuOpen(false)}
-              className="block py-2 px-3 rounded-lg text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition"
+              className={`py-3 px-3 text-xs uppercase tracking-widest ${navLinkClass(href)}`}
+              style={{ fontFamily: "var(--font-dm-mono), monospace" }}
             >
               {label}
             </Link>
           ))}
-          <div className="border-t border-[var(--color-border)] pt-3 mt-1 flex flex-col gap-2">
-            {user == null ? (
-              <>
-                <Link
-                  href="/login"
-                  onClick={() => setMenuOpen(false)}
-                  className="block py-2 px-3 rounded-lg text-sm font-medium text-[var(--color-muted)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 transition"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  onClick={() => setMenuOpen(false)}
-                  className="btn-primary rounded-full px-4 py-2 text-sm text-center"
-                >
-                  Register
-                </Link>
-              </>
-            ) : (
-              <>
-                <span className="block py-2 px-3 text-sm text-[var(--color-muted)]">
-                  Hi, {user.name.split(" ")[0]}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="btn-primary w-full rounded-full px-4 py-2 text-sm text-center"
-                >
-                  Logout
-                </button>
-              </>
-            )}
+          <div className="border-t border-[var(--border)] mt-3 pt-3 flex flex-col gap-2">
+            <button type="button" className="btn-outline w-full py-3 text-center">
+              Connect Wallet
+            </button>
+            <Link href="/invest" onClick={() => setMenuOpen(false)} className="btn-primary w-full py-3 text-center block">
+              Invest Now
+            </Link>
           </div>
         </div>
       )}

@@ -148,7 +148,7 @@ export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
             <span className={msg.role === "user" ? "text-[var(--color-primary)]" : "text-[var(--color-text)]"}>
               {msg.role === "user" ? "You: " : ""}
             </span>
-            <span className="text-[var(--color-text)]" style={{ fontFamily: msg.role === "assistant" ? "var(--font-ibm-plex-mono)" : undefined }}>
+            <span className="text-[var(--color-text)]" style={{ fontFamily: msg.role === "assistant" ? "var(--font-dm-mono), monospace" : undefined }}>
               {msg.role === "assistant" && i === displayMessages.length - 1 && !streaming
                 ? typewriterContent
                 : msg.content}
@@ -156,7 +156,7 @@ export default function PortfolioAdvisorChat({ portfolioContext }: Props) {
           </div>
         ))}
         {streamText && (
-          <div className="mb-2 text-[var(--color-text)]" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+          <div className="mb-2 text-[var(--color-text)]" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
             {streamText}
             <span className="animate-pulse">▌</span>
           </div>

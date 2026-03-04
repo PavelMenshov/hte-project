@@ -37,18 +37,18 @@ export default function InvestmentCalculator({ onSimulate }: Props) {
     <div className="card p-6">
       <h3
         className="font-bold text-white"
-        style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+        style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
       >
         Invest in the portfolio — not in one property
       </h3>
       <div className="mt-4">
         <div className="flex justify-between text-sm">
           <span className="text-[var(--color-muted)]">Tenantshield Token Price</span>
-          <span style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>HKD {portfolio.token_nav_hkd.toLocaleString()} (current NAV)</span>
+          <span style={{ fontFamily: "var(--font-dm-mono), monospace" }}>HKD {portfolio.token_nav_hkd.toLocaleString()} (current NAV)</span>
         </div>
         <div className="mt-1 flex justify-between text-sm">
           <span className="text-[var(--color-muted)]">Minimum</span>
-          <span style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>HKD 1,000 (1 token)</span>
+          <span style={{ fontFamily: "var(--font-dm-mono), monospace" }}>HKD 1,000 (1 token)</span>
         </div>
       </div>
       <div className="mt-6">
@@ -63,11 +63,11 @@ export default function InvestmentCalculator({ onSimulate }: Props) {
           className="mt-2 w-full accent-[var(--color-primary)]"
         />
         <div className="mt-2 flex justify-between text-sm">
-          <span key={`amt-${flipKey}`} className="flip-update inline-block" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>HKD {amount.toLocaleString()}</span>
+          <span key={`amt-${flipKey}`} className="flip-update inline-block" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>HKD {amount.toLocaleString()}</span>
           <span key={`tok-${flipKey}`} className="flip-update inline-block text-[var(--color-muted)]">Tokens: {tokens}</span>
         </div>
       </div>
-      <div className="mt-4 space-y-2 rounded-lg bg-[var(--color-bg)]/50 p-4 text-sm" style={{ fontFamily: "var(--font-ibm-plex-mono)" }}>
+      <div className="mt-4 space-y-2 rounded-lg bg-[var(--color-bg)]/50 p-4 text-sm" style={{ fontFamily: "var(--font-dm-mono), monospace" }}>
         <div className="flex justify-between">
           <span className="text-[var(--color-muted)]">Your portfolio share</span>
           <span key={`share-${flipKey}`} className="flip-update inline-block">{sharePct.toFixed(3)}%</span>

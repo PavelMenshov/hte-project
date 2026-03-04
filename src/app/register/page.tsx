@@ -84,7 +84,7 @@ export default function RegisterPage() {
         <div className="card p-8">
           <h1
             className="section-heading text-2xl font-bold text-white"
-            style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}
+            style={{ fontFamily: "var(--font-dm-serif), Georgia, serif" }}
           >
             Create account
           </h1>
