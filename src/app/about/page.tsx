@@ -47,12 +47,12 @@ export default function AboutPage() {
           </RevealSection>
 
           <RevealSection>
-            <section className="card border-[var(--color-secondary)]/30 p-6">
-              <h2 className="font-bold text-[var(--color-secondary)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-                Privacy architecture
+            <section className="card border-[var(--color-primary)]/30 p-6">
+              <h2 className="font-bold text-[var(--color-primary)]" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
+                Regulatory
               </h2>
               <p className="mt-3 text-[var(--color-muted)]">
-                Your identity is never revealed. Abelian / QDay provides quantum-resistant transactions and zero-knowledge ownership proof. Tenantshield knows only: how many tokens are on each wallet address. Not who is behind the wallet.
+                TenantShield operates under Hong Kong&apos;s SFC regulatory framework. Our tokens are structured as security tokens under the Securities and Futures Ordinance. We are pursuing SFC Type 1 licensing and partner with licensed intermediaries for compliant distribution.
               </p>
             </section>
           </RevealSection>

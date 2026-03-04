@@ -6,10 +6,8 @@ import { useRouter, usePathname } from "next/navigation";
 import { getSession, clearSession, type AuthUser } from "@/lib/auth";
 
 const NAV_LINKS = [
-  { href: "/", label: "Home" },
   { href: "/properties", label: "Properties" },
   { href: "/invest", label: "Invest" },
-  { href: "/rental", label: "Rental" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/about", label: "About" },
 ] as const;
@@ -54,7 +52,7 @@ export default function NavHeader() {
         </Link>
         <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
           {NAV_LINKS.map(({ href, label }) => {
-            const isActive = pathname === href || (href !== "/" && pathname.startsWith(href));
+            const isActive = pathname === href || pathname.startsWith(href + "/");
             return (
               <Link
                 key={href}

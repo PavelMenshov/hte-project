@@ -16,8 +16,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Tenantshield — Own Hong Kong Real Estate From HKD 1,000",
-  description: "AI finds the best properties. We buy them. You earn. Invest in Tenantshield tokens — 90% of rental income, quantum-private on Abelian QDay.",
+  title: "TenantShield — Own Hong Kong Real Estate From HKD 1,000",
+  description: "AI selects the best HK co-living properties. We acquire them. You earn 90% of rental income — liquid in minutes. KYC-compliant, SFC professional investor structure. Abelian QDay & AWS Bedrock.",
 };
 
 export const viewport = {

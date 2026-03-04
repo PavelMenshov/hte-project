@@ -19,7 +19,7 @@ function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const from = searchParams.get("from");
-  const allowedFrom = ["/invest", "/rental", "/dashboard"];
+  const allowedFrom = ["/invest", "/dashboard", "/properties"];
   const redirectTo = from && allowedFrom.includes(from) ? from : "/";
 
   async function handleSubmit(e: React.FormEvent) {

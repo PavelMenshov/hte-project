@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { addStoredTokens } from "@/lib/user-tokens";
 import InvestmentCalculator from "@/components/InvestmentCalculator";
-import PrivacyBlock from "@/components/PrivacyBlock";
 
 type PurchaseResult = {
   transactionHash: string;
@@ -97,12 +96,16 @@ export default function InvestPage() {
           Buy Tenantshield tokens. Earn 90% of net rental income. Token grows with portfolio NAV.
         </p>
 
+        <p className="mt-4 text-sm text-[var(--color-muted)]">
+          Currency flow: USD / HKD / EUR → USDC/USDT → Real Estate Token
+        </p>
+
         <div className="mt-10 space-y-8">
           <InvestmentCalculator onSimulate={handleSimulate} />
 
           <div className="card p-6">
             <h3 className="font-bold text-white" style={{ fontFamily: "var(--font-syne), system-ui, sans-serif" }}>
-              🔒 Private Investment — Powered by Abelian / QDay
+              🔒 Powered by Abelian QDay
             </h3>
             <div className="mt-4">
               <button
@@ -114,11 +117,9 @@ export default function InvestPage() {
               </button>
             </div>
             <p className="mt-3 text-xs text-[var(--color-muted)]">
-              Tenantshield never knows who you are. Tokens linked to wallet address only. No KYC. Abelian quantum-resistant cryptography. Zero-knowledge proof of ownership.
+              Quantum-resistant EVM chain. Real Estate Tokens are security tokens for Professional Investors; KYC is required per SFC framework.
             </p>
           </div>
-
-          <PrivacyBlock />
         </div>
 
         {securing && (
@@ -170,10 +171,14 @@ export default function InvestPage() {
               </div>
             </dl>
             <p className="mt-4 text-xs text-[var(--color-muted)] relative z-10">
-              Your tokens = a share of the entire Tenantshield portfolio. First payout: next quarter.
+              Your tokens = a share of the entire TenantShield portfolio. First payout: next quarter.
             </p>
           </div>
         )}
+
+        <p className="mt-10 text-xs text-[var(--color-muted)] max-w-2xl">
+          TenantShield tokens are security tokens offered to Professional Investors only as defined under the Securities and Futures Ordinance (Cap. 571). This is not an offer to retail investors.
+        </p>
       </div>
     </div>
   );

@@ -1,9 +1,10 @@
 # TenantShield
 
-TenantShield is a privacy-first platform that serves two audiences: **investors** who own fractional Hong Kong real estate via tokens, and **tenants** (especially students) who get AI-powered contract analysis, escrow deposits, and collective bargaining — without handing over their identity.
+TenantShield is a **fractional real estate tokenisation platform** for Hong Kong professional investors. AI selects the best HK co-living properties; we acquire them via SPV structures; you buy Real Estate Tokens from HKD 1,000 and earn 90% of net rental income. Liquidity in ~15 minutes via the secondary market. Built on Abelian QDay (quantum-resistant EVM) and AWS Bedrock.
 
-- For investors: AI selects and scores HK co-living properties. Buy Tenantshield tokens from HKD 1,000 and earn 90% of net rental income. Ownership is quantum-private on Abelian QDay.
-- For tenants: Upload a tenancy agreement and receive an AI analysis with red flags and recommendations. Lock your deposit in an on-chain escrow on QDay so the landlord sees a cryptographic guarantee, not your personal data.
+- **Target:** Professional Investors (SFC definition under the Securities and Futures Ordinance, Cap. 571).
+- **Currency flow:** USD / HKD / EUR → USDC/USDT → Real Estate Token (no internal cryptocurrency).
+- **Compliance:** KYC-compliant; security tokens offered to Professional Investors only. Not an offer to retail investors.
 
 ## Quick start
 
@@ -19,8 +20,8 @@ Open [http://localhost:3000](http://localhost:3000). The layout is responsive an
 ## Project structure
 
 ```
-hte-project/
-  contracts/          Solidity smart contracts (Escrow, LegalFund, CollectiveRentPool, etc.)
+TenantShield/
+  contracts/          Solidity smart contracts (InvestmentVault, RevenueDistributor, TenantshieldToken, NAVOracle, Escrow)
   data/               Cached market data used by the scraper scheduler
   docs/               Additional project documentation
   public/             Static assets and pre-built JSON data files
@@ -28,10 +29,10 @@ hte-project/
   scripts/            One-off TypeScript utility scripts (cache prefetch, HTML exploration)
   src/
     app/              Next.js App Router pages and route handlers
-      api/            Server-side API routes (Bedrock, auth, market data, scraping)
+      api/            Server-side API routes (Bedrock, auth, market data)
     components/       Shared React components
     data/             Static JSON data consumed by the frontend
-    lib/              Shared utilities (AI clients, auth, scraper logic, wallet helpers)
+    lib/              Shared utilities (AI clients, auth, wallet helpers)
     types/            Shared TypeScript type definitions
 ```
 
@@ -39,17 +40,14 @@ hte-project/
 
 | Route | Description |
 |-------|-------------|
-| `/` | Landing page with hero, how-it-works, and portfolio stats |
+| `/` | Landing page — hero, how-it-works, portfolio stats |
 | `/properties` | Browse AI-scored co-living properties |
-| `/invest` | Buy Tenantshield tokens |
+| `/invest` | Buy Real Estate Tokens (from HKD 1,000) |
 | `/dashboard` | Investor dashboard — balances and payouts |
-| `/contract` | Contract Analyzer — upload a tenancy agreement for AI review |
-| `/deposit` | Lock a rental deposit in on-chain escrow on QDay |
-| `/legal` | Contribute to the shared Legal Fund on QDay |
-| `/collective` | Join a collective rent pool |
-| `/rental` | Browse available rooms in Tenantshield-managed properties |
-| `/reviews` | Anonymous verified tenant reviews |
-| `/about` | Privacy architecture and product FAQ |
+| `/about` | Product FAQ and regulatory information |
+| `/login` | Sign in |
+| `/register` | Register |
+| `/pitch` | Redirects to `/properties` |
 
 ## Environment variables
 
@@ -61,19 +59,18 @@ hte-project/
 | `BEDROCK_AGENT_ID` | Agent ID from AWS Console (Bedrock Agents) |
 | `BEDROCK_AGENT_ALIAS_ID` | Alias ID for the Bedrock agent |
 | `BEDROCK_MODEL_ID` | Fallback model when no agent is configured (e.g. `amazon.nova-lite-v1:0`) |
-| `NEXT_PUBLIC_ESCROW_ADDRESS` | Deployed Escrow contract address on QDay |
-| `NEXT_PUBLIC_LEGAL_FUND_ADDRESS` | Deployed LegalFund contract address on QDay |
+| `NEXT_PUBLIC_ESCROW_ADDRESS` | (Optional) Deployed Escrow contract address on QDay |
 
-The Contract Analyzer shows a clear fallback message when Bedrock is not configured. The Deposit and Legal Fund pages work in "Simulate" mode when contracts are not deployed.
+See `.env.example` for the full list. Never commit `.env.local` — see [SECURITY.md](SECURITY.md).
 
 ### Bedrock Agent setup
 
 1. In AWS Console go to Bedrock → Agents and create or select your agent.
 2. Set the foundation model to Amazon Nova (e.g. `amazon.nova-lite-v1:0`) and press "Prepare agent".
-3. Copy the Agent ID (shown at the top of the agent page) into `BEDROCK_AGENT_ID`.
-4. Under Aliases, copy the Alias ID (the long string ID, not the alias name) into `BEDROCK_AGENT_ALIAS_ID`.
-5. Make sure `AWS_REGION` matches the region where the agent was created.
-6. The IAM user or role whose credentials are in `.env.local` needs the `bedrock:InvokeAgent` permission.
+3. Copy the Agent ID into `BEDROCK_AGENT_ID`.
+4. Under Aliases, copy the Alias ID into `BEDROCK_AGENT_ALIAS_ID`.
+5. Ensure `AWS_REGION` matches the region where the agent was created.
+6. The IAM user or role whose credentials are in `.env.local` needs `bedrock:InvokeAgent` permission.
 
 To disable the agent temporarily, comment out `BEDROCK_AGENT_ID` and `BEDROCK_AGENT_ALIAS_ID`. The app will fall back to direct InvokeModel using `BEDROCK_MODEL_ID`.
 
@@ -83,13 +80,13 @@ Secrets (AWS keys, env files with credentials) are never committed. We use envir
 
 ## Abelian / QDay
 
-All on-chain flows use QDay (Abelian's EVM-compatible, quantum-resistant testnet). To add the network in MetaMask, use the "Add QDay and Connect" button on the Deposit page, or add the RPC and chain ID from `.env.example` manually.
+On-chain flows use QDay (Abelian's EVM-compatible, quantum-resistant testnet). Add the network in MetaMask using the RPC URL and chain ID from `.env.example`.
 
-To enable real on-chain deposits, deploy `contracts/Escrow.sol` to the QDay testnet and set `NEXT_PUBLIC_ESCROW_ADDRESS` in `.env.local`. The same applies to `contracts/LegalFund.sol` and `NEXT_PUBLIC_LEGAL_FUND_ADDRESS`.
+To enable real on-chain operations, deploy the relevant contracts from `contracts/` to the QDay testnet and set the corresponding `NEXT_PUBLIC_*` addresses in `.env.local`.
 
 ## Stack
 
-- Frontend: Next.js 15, TypeScript, Tailwind CSS (responsive)
-- AI: AWS Bedrock AgentCore (InvokeAgent when agent ID is set); InvokeModel fallback
-- Blockchain: Abelian QDay (EVM); viem for wallet connection and contract writes
-- Smart contracts: Solidity — Escrow, LegalFund, CollectiveRentPool, and supporting contracts in `contracts/`
+- **Frontend:** Next.js 15, TypeScript, Tailwind CSS (responsive)
+- **AI:** AWS Bedrock (agents + InvokeModel fallback)
+- **Blockchain:** Abelian QDay (EVM); viem for wallet connection and contract writes
+- **Smart contracts:** Solidity — InvestmentVault, RevenueDistributor, TenantshieldToken, NAVOracle, Escrow (see `contracts/`)

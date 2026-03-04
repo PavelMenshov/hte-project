@@ -1,11 +1,11 @@
 # TenantShield — Brief Project Description
 
-**TenantShield** is a privacy-first platform that combines **AWS Bedrock AI** and **Abelian’s QDay blockchain** to serve two sides: **investors** who own fractional Hong Kong real estate via tokens, and **tenants** (especially students) who get AI-powered contract analysis, escrow deposits, and collective bargaining—without handing over their identity.
+**TenantShield** is a **fractional real estate tokenisation platform** for Hong Kong professional investors. It combines **AWS Bedrock AI** and **Abelian’s QDay blockchain** to offer tokenised exposure to HK co-living real estate.
 
-- **For investors:** AI selects and scores HK co-living properties; Tenantshield acquires them; you buy tokens (from HKD 1,000) and earn 90% of rental income. Ownership is quantum-private on Abelian QDay—no KYC, zero-knowledge proof.
-- **For tenants:** Upload a tenancy agreement and get an AI (Bedrock) report with red flags and recommendations. Lock your deposit in an on-chain escrow on QDay so the landlord sees a guarantee, not your personal data. Optional: contribute to a shared Legal Fund and join collective rent pools.
+- **For investors:** AI analyses and scores HK co-living properties by yield, location, and occupancy. TenantShield acquires selected properties via SPV (Special Purpose Vehicle) structures. You buy Real Estate Tokens from HKD 1,000; each token is a fractional share of the SPV. You earn 90% of net rental income quarterly, with liquidity in ~15 minutes on the secondary market. KYC-compliant, SFC professional investor structure; security tokens under the Securities and Futures Ordinance (Cap. 571).
+- **Currency:** USD / HKD / EUR → USDC/USDT → Real Estate Token. No internal cryptocurrency.
 
-**Tech:** Next.js, TypeScript, AWS Bedrock (agents + InvokeModel), Solidity (Escrow, Legal Fund, Collective Rent Pool), Abelian QDay (EVM-compatible).
+**Tech:** Next.js, TypeScript, AWS Bedrock (agents + InvokeModel), Solidity (InvestmentVault, RevenueDistributor, TenantshieldToken, NAVOracle, Escrow), Abelian QDay (EVM-compatible, quantum-resistant).
 
 **One-liner:**  
-*AI finds the best properties. We buy them. You earn. Tenants get contract checks and escrow without giving up their identity—powered by AWS Bedrock and Abelian QDay.*
+*AI selects the best HK co-living properties. We acquire them. You earn 90% of rental income — liquid in minutes, not months. Tokenised real estate for Professional Investors. Powered by AWS Bedrock and Abelian QDay.*

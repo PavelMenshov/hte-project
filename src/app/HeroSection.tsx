@@ -32,18 +32,29 @@ export default function HeroSection() {
           className="mt-6 max-w-xl animate-fade-in-down-delay-1 text-base text-[var(--color-muted)]"
           style={{ fontFamily: "var(--font-ibm-plex-mono), ui-monospace, monospace" }}
         >
-          AI finds the best properties. We buy them. You earn.
+          AI selects the best HK co-living properties. We acquire them. You earn 90% of rental income — liquid in minutes, not months.
         </p>
         <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-down-delay-2">
           <Link href="/properties" className="btn-primary inline-flex rounded-full px-8 py-4 text-sm">
             Explore Properties
           </Link>
-          <Link
-            href="/invest"
+          <a
+            href="#how-it-works"
             className="inline-flex rounded-full border-2 border-[var(--color-border)] bg-transparent px-8 py-4 text-sm font-semibold uppercase tracking-wider text-[var(--color-text)] transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]"
           >
-            Buy Tokens
-          </Link>
+            How It Works
+          </a>
+        </div>
+        <div className="mt-8 flex flex-wrap gap-4 animate-fade-in-up-d1">
+          <span className="rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
+            HKD 1,000 minimum
+          </span>
+          <span className="animate-fade-in-up-d2 rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
+            ~15 min liquidity
+          </span>
+          <span className="animate-fade-in-up-d3 rounded-full border border-[var(--color-primary)]/40 bg-[var(--color-primary)]/10 px-4 py-2 text-xs font-medium uppercase tracking-wider text-[var(--color-primary)]">
+            90% rental yield
+          </span>
         </div>
       </div>
     </section>

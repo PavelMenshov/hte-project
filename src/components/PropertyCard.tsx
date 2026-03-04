@@ -39,7 +39,7 @@ export default function PropertyCard({ property, onAnalyze, isAnalyzing, animate
   return (
     <Link
       href={`/properties/${id}`}
-      className="card card-hover group block overflow-hidden"
+      className="card card-hover group block overflow-hidden animate-fade-in-up"
     >
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
