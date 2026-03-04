@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { addStoredTokens } from "@/lib/user-tokens";
 import InvestmentCalculator from "@/components/InvestmentCalculator";
@@ -16,7 +15,6 @@ type PurchaseResult = {
 const SECURING_STEPS = ["Initializing...", "Securing on Abelian chain...", "Confirmed ✓"];
 
 export default function InvestPage() {
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [walletConnected, setWalletConnected] = useState(false);
   const [purchaseResult, setPurchaseResult] = useState<PurchaseResult>(null);
@@ -26,12 +24,6 @@ export default function InvestPage() {
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
   }, []);
-
-  useEffect(() => {
-    if (mounted && !getSession()) {
-      router.replace("/login?from=/invest");
-    }
-  }, [mounted, router]);
 
   useEffect(() => {
     if (!securing) {

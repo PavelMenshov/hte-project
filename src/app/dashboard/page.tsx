@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { getStoredTokenBalance } from "@/lib/user-tokens";
 import portfolioData from "@/data/portfolio.json";
@@ -17,19 +16,12 @@ const MOCK_TOTAL_EARNED_BASE = 1840;
 const MOCK_NEXT_PAYOUT_BASE = 312;
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [mounted, setMounted] = useState(false);
   const [tokensHeld, setTokensHeld] = useState(25);
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
   }, []);
-
-  useEffect(() => {
-    if (mounted && !getSession()) {
-      router.replace("/login?from=/dashboard");
-    }
-  }, [mounted, router]);
 
   useEffect(() => {
     if (mounted) {
